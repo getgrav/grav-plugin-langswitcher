@@ -1,0 +1,9 @@
+<ul class="langswitcher">
+{% for key, language in langswitcher.languages %}
+    {% if key == langswitcher.current %}
+    <li><a href="{{ page.url }}" class="active">{{  language.nativeName|capitalize }}</a></li>
+    {% else %}
+    <li><a href="{{ url(key~langswitcher.page_route) }}">{{  language.nativeName|capitalize }}</a></li>
+    {% endif %}
+{% endfor %}
+</ul>
