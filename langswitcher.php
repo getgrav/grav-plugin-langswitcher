@@ -2,6 +2,7 @@
 namespace Grav\Plugin;
 
 use Grav\Common\Language\LanguageCodes;
+use Grav\Common\Page\Page;
 use \Grav\Common\Plugin;
 
 class LangSwitcherPlugin extends Plugin
@@ -47,6 +48,15 @@ class LangSwitcherPlugin extends Plugin
     {
         $data = new \stdClass;
         $data->page_route = $this->grav['page']->rawRoute();
+
+        /** @var Page $page */
+        $page = $this->grav['page'];
+
+        if ($page->home()) {
+            $data->page_route = '';
+        }
+
+
         $data->current = $this->grav['language']->getLanguage();
         $data->languages = LanguageCodes::getNames($this->grav['language']->getLanguages());
 
