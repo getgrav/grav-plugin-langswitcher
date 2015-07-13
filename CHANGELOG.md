@@ -1,3 +1,9 @@
+# v1.0.2
+## 07/13/2015
+
+1. [](#improved)
+    * Improved homepage routing    
+
 # v1.0.1
 ## 07/08/2015
 
