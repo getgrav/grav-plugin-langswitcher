@@ -11,7 +11,7 @@
         {% set active_class = '' %}
     {% endif %}
 
-    <li><a href="{{ lang_url }}" class="{{ active_class }}">{{  language.nativeName|capitalize }}</a></li>
+    <li><a href="{{ lang_url ~ uri.params }}" class="{{ active_class }}">{{  language.nativeName|capitalize }}</a></li>
 
 {% endfor %}
 </ul>
