@@ -2,7 +2,7 @@
 ## 05/03/2016
 
 1. [](#improved)
-    * Take URI params into account when switching languages
+    * Take URI parameters into account when switching languages
     * Add `external` class to avoid problems on modular pages when `jquery.singlePageNav` is loaded  
 
 # v1.1.0
