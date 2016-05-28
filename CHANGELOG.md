@@ -1,3 +1,9 @@
+# v1.2.1
+## 05/28/2016
+
+1. [](#bugfix)
+    * Display all language names, even those with non supported locales
+    
 # v1.2.0
 ## 05/03/2016
 
