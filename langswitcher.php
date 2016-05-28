@@ -28,9 +28,20 @@ class LangSwitcherPlugin extends Plugin
         }
 
         $this->enable([
+            'onTwigInitialized'   => ['onTwigInitialized', 0],
             'onTwigTemplatePaths' => ['onTwigTemplatePaths', 0],
             'onTwigSiteVariables' => ['onTwigSiteVariables', 0]
         ]);
+    }
+
+    /** Add the native_name function */
+    public function onTwigInitialized()
+    {
+        $this->grav['twig']->twig()->addFunction(
+            new \Twig_SimpleFunction('native_name', function($key) {
+                return LanguageCodes::getNativeName($key);
+            })
+        );
     }
 
     /**
@@ -58,12 +69,16 @@ class LangSwitcherPlugin extends Plugin
 
 
         $data->current = $this->grav['language']->getLanguage();
-        $data->languages = LanguageCodes::getNames($this->grav['language']->getLanguages());
+        $data->languages = $this->grav['language']->getLanguages();
 
         $this->grav['twig']->twig_vars['langswitcher'] = $data;
 
         if ($this->config->get('plugins.langswitcher.built_in_css')) {
             $this->grav['assets']->add('plugin://langswitcher/css/langswitcher.css');
         }
+    }
+
+    public function getNativeName($code) {
+
     }
 }
