@@ -42,6 +42,22 @@ Copy the template file [langswitcher.html.twig](templates/partials/langswitcher.
 
 You can now edit the override and tweak it however you prefer.
 
+## Usage of the `hreflang` partial
+
+A second template is available for `hreflang` annotations in the header of the page. In order to emit language annotations for the available languages of a page you need to add the corrsponding Twig partial template into the `<head>` section of your page, which can typically be found in `base.html.twig`:
+
+```
+{% include 'partials/langswitcher.hreflang.html.twig' %}
+```
+
+This will generate something like:
+
+```
+<link rel="alternate" href="http://example.com/en" hreflang="en" />
+<link rel="alternate" href="http://example.com/de" hreflang="de" />
+<link rel="alternate" href="http://example.com/zh-cn" hreflang="zh-cn" />
+```
+
 # Updating
 
 As development for the LangSwitcher plugin continues, new versions may become available that add additional features and functionality, improve compatibility with newer Grav releases, and generally provide a better user experience. Updating LangSwitcher is easy, and can be done through Grav's GPM system, as well as manually.
