@@ -83,3 +83,10 @@ built_in_css: true
 
 Options are pretty self explanatory.
 
+## Redirecting after switching language
+
+To have Grav redirect to the default page route after switching language, you must add the following configuration to `user/config/system.yaml`
+```
+pages:
+  redirect_default_route: true
+```
