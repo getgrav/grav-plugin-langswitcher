@@ -1,17 +1,17 @@
 <ul class="langswitcher">
-{% set langobj = grav['language'] %}
+{% for language in langswitcher.languages %}
 
-{% for key in langswitcher.languages %}
-
-    {% if key == langswitcher.current %}
+    {% if language == langswitcher.current %}
         {% set lang_url = page.url %}
         {% set active_class = ' active' %}
     {% else %}
-        {% set lang_url = base_url_simple ~ langobj.getLanguageURLPrefix(key)~langswitcher.page_route ?: '/' %}
+        {% set block_untranslated_pages = grav.config.plugins.langswitcher.block_untranslated_pages %}
+        {% set translated_page = block_untranslated_pages ? langswitcher.translated_pages[language] : null %}
+        {% set lang_url = base_url_simple ~ grav.language.getLanguageURLPrefix(language) ~ (((not block_untranslated_pages) or (translated_page and translated_page.published)) ? langswitcher.page_route : '/') %}
         {% set active_class = '' %}
     {% endif %}
 
-    <li><a href="{{ lang_url ~ uri.params }}" class="external{{ active_class }}">{{  native_name(key)|capitalize }}</a></li>
+    <li><a href="{{ lang_url ~ uri.params }}" class="external{{ active_class }}">{{ native_name(language)|capitalize }}</a></li>
 
 {% endfor %}
 </ul>

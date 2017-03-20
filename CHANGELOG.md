@@ -1,3 +1,9 @@
+# v1.x.x
+## x/x/2017
+
+1. [](#new)
+    * Added an option to prevent switching to untranslated or unpublished translated pages
+
 # v1.3.0
 ## 02/17/2017
 
