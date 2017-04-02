@@ -7,7 +7,7 @@
         {% set lang_url = page.url %}
         {% set active_class = ' active' %}
     {% else %}
-        {% set lang_url = base_url_simple ~ langobj.getLanguageURLPrefix(key)~langswitcher.page_route ?: '/' %}
+        {% set lang_url = base_url_simple ~ langobj.getLanguageURLPrefix(key)~langswitcher.page_route~page.urlExtension ?: '/' %}
         {% set active_class = '' %}
     {% endif %}
 
