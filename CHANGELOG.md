@@ -1,3 +1,9 @@
+# v1.3.1
+## 04/xx/2017
+
+1. [](#bugfix)
+    * Fixed generated URLs when `append_url_extension` is set, via PR [#22](https://github.com/getgrav/grav-plugin-langswitcher/pull/22)
+
 # v1.3.0
 ## 02/17/2017
 
