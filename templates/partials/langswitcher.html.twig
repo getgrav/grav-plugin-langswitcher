@@ -5,9 +5,14 @@
         {% set lang_url = page.url %}
         {% set active_class = ' active' %}
     {% else %}
+        {% set lang_url = base_url_simple ~ grav.language.getLanguageURLPrefix(language) %}
         {% set block_untranslated_pages = grav.config.plugins.langswitcher.block_untranslated_pages %}
         {% set translated_page = block_untranslated_pages ? langswitcher.translated_pages[language] : null %}
-        {% set lang_url = base_url_simple ~ grav.language.getLanguageURLPrefix(language) ~ (((not block_untranslated_pages) or (translated_page and translated_page.published)) ? langswitcher.page_route : '/') %}
+        {% if ((not block_untranslated_pages) or (translated_page and translated_page.published)) %}
+          {% set lang_url = lang_url ~ langswitcher.page_route ~ page.urlExtension %}
+        {% else %}
+          {% set lang_url = lang_url ~ '/' %}
+        {% endif %}
         {% set active_class = '' %}
     {% endif %}
 
