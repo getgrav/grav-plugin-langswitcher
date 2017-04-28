@@ -36,14 +36,12 @@ form:
       validate:
         type: bool
 
-    block_untranslated_pages:
-      type: toggle
-      label: Never switch to untranslated or unpublished pages
-      help: When the current page doesn't exist in another language (or it exists but it's not published) and the user switches to that language, go to the home route instead.
-      highlight: 1
-      default: 1
+    untranslated_pages_behavior:
+      type: select
+      label: Untranslated pages behavior
+      help: Determine what to do with a language link when the current page doesn't exist in that language or it exists but it's not published.
+      default: none
       options:
-        1: Yes
-        0: No
-      validate:
-        type: bool
+        none: Show language (default)
+        redirect: Show language, link to home route
+        hide: Hide language

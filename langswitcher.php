@@ -68,7 +68,7 @@ class LangSwitcherPlugin extends Plugin
         $languages = $this->grav['language']->getLanguages();
         $data->languages = $languages;
 
-        if ($this->config->get('plugins.langswitcher.block_untranslated_pages')) {
+        if ($this->config->get('plugins.langswitcher.untranslated_pages_behavior') !== 'none') {
             $translated_pages = [];
             foreach ($languages as $language) {
                 $translated_pages[$language] = null;
