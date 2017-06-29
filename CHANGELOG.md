@@ -1,5 +1,5 @@
 # v1.4.0
-## 07/xx/2017
+## 06/29/2017
 
 1. [](#new)
     * Added the `untranslated_pages_behavior` option to determine what to do with a language link when the current page doesn't exist in that language or it exists but it's not published
