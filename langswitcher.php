@@ -58,18 +58,32 @@ class LangSwitcherPlugin extends Plugin
     public function onTwigSiteVariables()
     {
         $data = new \stdClass;
-        $data->page_route = $this->grav['page']->rawRoute();
 
-        /** @var Page $page */
         $page = $this->grav['page'];
-
+        $data->page_route = $page->rawRoute();
         if ($page->home()) {
-            $data->page_route = '';
+            $data->page_route = '/';
         }
 
+        $languages = $this->grav['language']->getLanguages();
+        $data->languages = $languages;
+
+        if ($this->config->get('plugins.langswitcher.untranslated_pages_behavior') !== 'none') {
+            $translated_pages = [];
+            foreach ($languages as $language) {
+                $translated_pages[$language] = null;
+                $page_name_without_ext = substr($page->name(), 0, -(strlen($page->extension())));
+                $translated_page_path = $page->path() . DS . $page_name_without_ext . '.' . $language . '.md';
+                if (file_exists($translated_page_path)) {
+                    $translated_page = new Page();
+                    $translated_page->init(new \SplFileInfo($translated_page_path), $language . '.md');
+                    $translated_pages[$language] = $translated_page;
+                }
+            }
+            $data->translated_pages = $translated_pages;
+        }
 
         $data->current = $this->grav['language']->getLanguage();
-        $data->languages = $this->grav['language']->getLanguages();
 
         $this->grav['twig']->twig_vars['langswitcher'] = $data;
 
