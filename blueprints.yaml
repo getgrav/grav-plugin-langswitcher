@@ -35,3 +35,13 @@ form:
         0: Disabled
       validate:
         type: bool
+
+    untranslated_pages_behavior:
+      type: select
+      label: Untranslated pages behavior
+      help: Determine what to do with a language link when the current page doesn't exist in that language or it exists but it's not published.
+      default: none
+      options:
+        none: Show language (default)
+        redirect: Show language, link to home route
+        hide: Hide language
