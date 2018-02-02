@@ -1,9 +1,25 @@
 {% set langobj = grav['language'] %}
 {% for key in langswitcher.languages %}
-{% if key == langswitcher.current %}
-	{% set lang_url = page.url %}
-{% else %}
-	{% set lang_url = base_url_simple ~ langobj.getLanguageURLPrefix(key) ~ langswitcher.page_route ~ page.urlExtension ?: '/' %}
-{% endif %}
-<link rel="alternate" hreflang="{{ key }}" href="{{ lang_url ~ uri.params }}" />
+  {% set show_language = true %}
+  {% if key == langswitcher.current %}
+    {% set lang_url = page.url %}
+  {% else %}
+    {% set base_lang_url = base_url_simple ~ grav.language.getLanguageURLPrefix(language) %}
+    {% set lang_url = base_lang_url ~ langswitcher.page_route ~ page.urlExtension %}
+    {% set untranslated_pages_behavior = grav.config.plugins.langswitcher.untranslated_pages_behavior %}
+    {% if untranslated_pages_behavior != 'none' %}
+      {% set translated_page = langswitcher.translated_pages[language] %}
+      {% if (not translated_page) or (not translated_page.published) %}
+        {% if untranslated_pages_behavior == 'redirect' %}
+          {% set lang_url = base_lang_url ~ '/' %}
+        {% elseif untranslated_pages_behavior == 'hide' %}
+          {% set show_language = false %}
+        {% endif %}
+      {% endif %}
+    {% endif %}
+    {% set lang_url = base_url_simple ~ langobj.getLanguageURLPrefix(key) ~ langswitcher.page_route ~ page.urlExtension ?: '/' %}
+  {% endif %}
+  {% if show_language %}
+    <link rel="alternate" hreflang="{{ key }}" href="{{ lang_url ~ uri.params }}" />
+  {% endif %}
 {% endfor %}
