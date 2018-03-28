@@ -60,7 +60,7 @@ class LangSwitcherPlugin extends Plugin
         $data = new \stdClass;
 
         $page = $this->grav['page'];
-        $data->page_route = $page->rawRoute();
+        $data->page_route = ($page->routeCanonical() ? $page->routeCanonical() : $page->rawRoute());
         if ($page->home()) {
             $data->page_route = '/';
         }
