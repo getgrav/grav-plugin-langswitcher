@@ -52,6 +52,59 @@ class LangSwitcherPlugin extends Plugin
         $this->grav['twig']->twig_paths[] = __DIR__ . '/templates';
     }
 
+
+    /**
+     * Generalized method to get a page object for a given language
+     */
+    protected function getTranslatedPageItem($page, $language) {
+        $page_name_without_ext = substr($page->name(), 0, -(strlen($page->extension())));
+        $translated_page_path = $page->path() . DS . $page_name_without_ext . '.' . $language . '.md';
+        if (file_exists($translated_page_path)) {
+            $translated_page = new Page();
+            $translated_page->init(new \SplFileInfo($translated_page_path), $language . '.md');
+            return $translated_page;
+        }
+        return null;
+    }
+    
+    /**
+     * Get the transalated slug for a given page
+     */
+    protected function getTranslatedSlugOfPage($page, $language) {
+        $translatedPage = $this->getTranslatedPageItem($page, $language);
+
+        if ($translatedPage) {
+            return $translatedPage->slug();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Recursive function to get the translated path of a page by going through its parents
+     */
+    public function getTranslatedFullPagePath($page, $language, $maxDepth=100, $depth = 0){
+        if ($maxDepth && $depth > $maxDepth) {
+            return null;
+        }
+
+        $slug = $this->getTranslatedSlugOfPage($page, $language);
+
+        $parent = $page->parent();
+        if ($parent) {
+            $parentSlug = $this->getTranslatedFullPagePath($parent, $language, $maxDepth, $depth+1);
+            if ($parentSlug) {
+                return $parentSlug . "/" . $slug;
+            } else {
+                return $slug;
+            }
+        } else {
+            return $slug;
+        }
+    }
+
+
+
     /**
      * Set needed variables to display Langswitcher.
      */
@@ -65,6 +118,8 @@ class LangSwitcherPlugin extends Plugin
             $data->page_route = '/';
         }
 
+        $data->translated_page_routes = [];
+
         $languages = $this->grav['language']->getLanguages();
         $data->languages = $languages;
 
@@ -72,12 +127,12 @@ class LangSwitcherPlugin extends Plugin
             $translated_pages = [];
             foreach ($languages as $language) {
                 $translated_pages[$language] = null;
-                $page_name_without_ext = substr($page->name(), 0, -(strlen($page->extension())));
-                $translated_page_path = $page->path() . DS . $page_name_without_ext . '.' . $language . '.md';
-                if (file_exists($translated_page_path)) {
-                    $translated_page = new Page();
-                    $translated_page->init(new \SplFileInfo($translated_page_path), $language . '.md');
-                    $translated_pages[$language] = $translated_page;
+
+                $translatedPage = $this->getTranslatedPageItem($page, $language);
+                if ($translatedPage) {
+                    $translated_pages[$language] = $translatedPage;
+
+                    $data->translated_page_routes[$language] = $this->getTranslatedFullPagePath($page, $language);
                 }
             }
             $data->translated_pages = $translated_pages;
