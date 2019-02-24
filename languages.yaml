@@ -18,7 +18,7 @@ ru:
     UNTRANSLATED_PAGES_BEHAVIOR_OPTION_REDIRECT: 'Показать язык, ссылка на домашнюю страницу'
     UNTRANSLATED_PAGES_BEHAVIOR_OPTION_HIDE: 'Скрыть язык'
 
-ul:
+uk:
   PLUGIN_LANGSWITCHER:
     BUILTIN_CSS: 'Використовувати вбудований CSS'
     BUILTIN_CSS_HELP: 'Використовувати CSS, наданий плагіном LangSwitcher.'
