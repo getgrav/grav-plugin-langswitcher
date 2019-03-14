@@ -1,8 +1,11 @@
+{% set default_language = grav['language'].getDefault() %}
+{% set default_language_url = null %}
+
 {% for language in langswitcher.languages %}
 
     {% set show_language = true %}
 
-    {% if language == langswitcher.current %}
+    {% if language == langswitcher.current %} 
         {% set lang_url = page.url %}
     {% else %}
 
@@ -31,9 +34,15 @@
         
     {% endif %}
 
+    {% if default_language == language %}
+      {% set default_language_url = (lang_url ~ uri.params) | regex_replace('#/$#', '') %}
+    {% endif %}
+
     {% if show_language %}
         <link rel="alternate" hreflang="{{ language }}" href="{{ (lang_url ~ uri.params) | regex_replace('#/$#', '') }}" />
     {% endif %}
 {% endfor %}
 
-<link rel="alternate" hreflang="x-default" href="/{{ grav['language'].getDefault() ?: 'en' }}" />
+{% if default_language_url != null %}
+  <link rel="alternate" hreflang="x-default" href="{{ default_language_url }}" />
+{% endif %}
