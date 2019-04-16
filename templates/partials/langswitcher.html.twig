@@ -17,15 +17,15 @@
                 {% elseif untranslated_pages_behavior == 'hide' %}
                     {% set show_language = false %}
                 {% endif %}
+            {% else %}
+                {% set lang_url = base_lang_url ~ '/' ~ langswitcher.translated_page_routes[language] %}
             {% endif %}
-        {% else %}
-            {% set lang_url = base_lang_url ~ '/' ~ langswitcher.translated_page_routes[language] %}
         {% endif %}
         {% set active_class = '' %}
     {% endif %}
 
     {% if show_language %}
-        <li><a href="{{ lang_url ~ uri.params }}" class="external{{ active_class }}">{{ native_name(language)|capitalize }}</a></li>
+        <li><a href="{{ lang_url ~ uri.params | regex_replace('#/$#', '') }}" class="external{{ active_class }}">{{ native_name(language)|capitalize }}</a></li>
     {% endif %}
 
 {% endfor %}
