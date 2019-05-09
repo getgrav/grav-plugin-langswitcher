@@ -1,5 +1,5 @@
 name: LangSwitcher
-version: 1.4.0
+version: 1.4.1
 description: LangSwitcher is a [Grav](http://github.com/getgrav/grav) plugin that provides native language text links to switch between [multiple languages](http://learn.getgrav.org/content/multi-language) in Grav **v0.9.30** or greater.
 icon: globe
 author:
@@ -16,32 +16,33 @@ form:
   fields:
     enabled:
       type: toggle
-      label: Plugin status
+      label: PLUGIN_ADMIN.PLUGIN_STATUS
       highlight: 1
       default: 1
       options:
-        1: Enabled
-        0: Disabled
+        1: PLUGIN_ADMIN.ENABLED
+        0: PLUGIN_ADMIN.DISABLED
       validate:
         type: bool
 
     built_in_css:
       type: toggle
-      label: Use built in CSS
+      label: PLUGIN_LANGSWITCHER.BUILTIN_CSS
+      help: PLUGIN_LANGSWITCHER.BUILTIN_CSS_HELP
       highlight: 1
       default: 1
       options:
-        1: Enabled
-        0: Disabled
+        1: PLUGIN_ADMIN.ENABLED
+        0: PLUGIN_ADMIN.DISABLED
       validate:
         type: bool
 
     untranslated_pages_behavior:
       type: select
-      label: Untranslated pages behavior
-      help: Determine what to do with a language link when the current page doesn't exist in that language or it exists but it's not published.
+      label: PLUGIN_LANGSWITCHER.UNTRANSLATED_PAGES_BEHAVIOR
+      help: PLUGIN_LANGSWITCHER.UNTRANSLATED_PAGES_BEHAVIOR_HELP
       default: none
       options:
-        none: Show language (default)
-        redirect: Show language, link to home route
-        hide: Hide language
+        none: PLUGIN_LANGSWITCHER.UNTRANSLATED_PAGES_BEHAVIOR_OPTION_NONE
+        redirect: PLUGIN_LANGSWITCHER.UNTRANSLATED_PAGES_BEHAVIOR_OPTION_REDIRECT
+        hide: PLUGIN_LANGSWITCHER.UNTRANSLATED_PAGES_BEHAVIOR_OPTION_HIDE

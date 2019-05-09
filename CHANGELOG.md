@@ -1,3 +1,9 @@
+# v1.4.1
+## 05/09/2019
+
+1. [](#new)
+    * Added some translations [#45](https://github.com/getgrav/grav-plugin-langswitcher/pull/45)
+
 # v1.4.0
 ## 06/29/2017
 
