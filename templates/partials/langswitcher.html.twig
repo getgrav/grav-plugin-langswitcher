@@ -18,6 +18,8 @@
                     {% set show_language = false %}
                 {% endif %}
             {% endif %}
+        {% else %}
+            {% set lang_url = base_lang_url ~ '/' ~ langswitcher.translated_page_routes[language] %}
         {% endif %}
         {% set active_class = '' %}
     {% endif %}
