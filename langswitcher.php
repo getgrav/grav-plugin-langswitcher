@@ -53,6 +53,46 @@ class LangSwitcherPlugin extends Plugin
     }
 
     /**
+     * Generate localized route based on the translated slugs found through the pages hierarchy
+     */
+    protected function _getTranslatedUrl($lang, $path)
+    {
+        $translated_url_parts = array();
+        $pages = $this->grav['pages'];
+        $page = $pages->get($path);
+        $current_node = $page;
+        $max_recursions = 10;
+        while ($max_recursions > 0 && $current_node->slug() != 'pages' && $path != 'pages') {
+            $translated_md_filepath = "{$path}/{$current_node->template()}.{$lang}.md";
+            if (file_exists($translated_md_filepath)) {
+                //$this->grav['language']->setActive($lang);
+                $translated_page = new Page();
+                $translated_page->init(new \SplFileInfo($translated_md_filepath));
+                //$translated_page->filePath($translated_md_filepath);
+                $translated_slug = $translated_page->slug();
+                if (!empty($translated_slug)) {
+                    array_unshift($translated_url_parts, $translated_slug);
+                } else {
+                    $untranslated_slug = $current_node->slug();
+                    if (!empty($untranslated_slug)) {
+                        array_unshift($translated_url_parts, $untranslated_slug);
+                    }
+                }
+                $current_node = $current_node->parent();
+                $path = dirname($path);
+            }
+            $max_recursions--;
+        }
+        if (!empty($translated_url_parts)) {
+            //array_unshift($translated_url_parts, $lang);
+            array_unshift($translated_url_parts, '');
+            return implode('/', $translated_url_parts);
+        } else {
+            return '';
+        }
+    }
+
+    /**
      * Set needed variables to display Langswitcher.
      */
     public function onTwigSiteVariables()
@@ -81,6 +121,14 @@ class LangSwitcherPlugin extends Plugin
                 }
             }
             $data->translated_pages = $translated_pages;
+        }
+
+        $data->translated_routes = array();
+        foreach ($data->languages as $language) {
+            $data->translated_routes[$language] = $this->_getTranslatedUrl($language, $page->path());
+            if (empty($data->translated_routes[$language])) {
+                $data->translated_routes[$language] = $data->page_route;
+            }
         }
 
         $data->current = $this->grav['language']->getLanguage();
