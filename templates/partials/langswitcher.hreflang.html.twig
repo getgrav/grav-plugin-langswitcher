@@ -39,7 +39,7 @@
     {% endif %}
 
     {% if show_language %}
-        <link rel="alternate" hreflang="{{ language }}" href="{{ (lang_url ~ uri.params) | regex_replace('#/$#', '') }}" />
+        <link rel="alternate" hreflang="{{ language }}" href="{{ (lang_url ~ uri.params) | regex_replace('#/$#', '') | regex_replace('#/home$#', '') }}" />
     {% endif %}
 {% endfor %}
 
