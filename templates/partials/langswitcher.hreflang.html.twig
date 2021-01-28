@@ -5,5 +5,8 @@
 {% else %}
 	{% set lang_url = base_url_simple ~ langobj.getLanguageURLPrefix(key) ~ langswitcher.page_route ~ page.urlExtension ?: '/' %}
 {% endif %}
+{% if grav.language.getDefault == key %}
+<link rel="alternate" hreflang="x-default" href="{{ lang_url ~ uri.params }}" />
+{% endif %}
 <link rel="alternate" hreflang="{{ key }}" href="{{ lang_url ~ uri.params }}" />
 {% endfor %}
