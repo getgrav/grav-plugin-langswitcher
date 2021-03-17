@@ -1,3 +1,12 @@
+# v1.4.2
+## 03/17/2021
+
+1. [](#new)
+    * Pass phpstan level 1 tests
+    * Require Grav v1.6
+1. [](#bugfix)
+    * Fix `hreflang` URLs [#57](https://github.com/getgrav/grav-plugin-langswitcher/pull/57)
+
 # v1.4.1
 ## 05/09/2019
 

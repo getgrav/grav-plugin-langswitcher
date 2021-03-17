@@ -5,5 +5,5 @@
 {% else %}
 	{% set lang_url = base_url_simple ~ langobj.getLanguageURLPrefix(key) ~ langswitcher.page_route ~ page.urlExtension ?: '/' %}
 {% endif %}
-<link rel="alternate" hreflang="{{ key }}" href="{{ lang_url ~ uri.params }}" />
+<link rel="alternate" hreflang="{{ key }}" href="{{ base_url_absolute ~ lang_url ~ uri.params }}" />
 {% endfor %}
