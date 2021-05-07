@@ -87,7 +87,8 @@ class LangSwitcherPlugin extends Plugin
             foreach ($languages as $language) {
                 $translated_pages[$language] = null;
                 $page_name_without_ext = substr($page->name(), 0, -(strlen($page->extension())));
-                $translated_page_path = $page->path() . DS . $page_name_without_ext . '.' . $language . '.md';
+                $lang_ext = $this->grav['language']->isIncludeDefaultLanguage($language) ? '.' . $language : '';
+                $translated_page_path = $page->path() . DS . $page_name_without_ext . $lang_ext . '.md';
                 if (file_exists($translated_page_path)) {
                     $translated_page = new Page();
                     $translated_page->init(new \SplFileInfo($translated_page_path), $language . '.md');
