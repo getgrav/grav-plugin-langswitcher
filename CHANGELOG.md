@@ -1,3 +1,10 @@
+# v1.4.3
+## 06/25/2021
+
+1. [](#new)
+   * Made langswitcher data available in Grav object
+1. [](#bugfix)
+   * Fix multilang alternatives [#58](https://github.com/getgrav/grav-plugin-langswitcher/pull/58)
 # v1.4.2
 ## 03/17/2021
 
