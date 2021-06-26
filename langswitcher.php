@@ -8,6 +8,7 @@ use \Grav\Common\Plugin;
 
 class LangSwitcherPlugin extends Plugin
 {
+
     /**
      * @return array
      */
@@ -99,7 +100,7 @@ class LangSwitcherPlugin extends Plugin
 
         $data->current = $this->grav['language']->getLanguage();
 
-        $this->grav['twig']->twig_vars['langswitcher'] = $data;
+        $this->grav['twig']->twig_vars['langswitcher'] = $this->grav['langswitcher'] = $data;
 
         if ($this->config->get('plugins.langswitcher.built_in_css')) {
             $this->grav['assets']->add('plugin://langswitcher/css/langswitcher.css');

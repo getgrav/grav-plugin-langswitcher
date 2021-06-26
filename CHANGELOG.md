@@ -1,3 +1,9 @@
+# v1.4.3
+## mm/dd/2021
+
+1. [](#new)
+   * Made langswitcher data available in Grav object
+
 # v1.4.2
 ## 03/17/2021
 
