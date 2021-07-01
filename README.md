@@ -28,7 +28,7 @@ You should now have all the plugin files under
 
 The `langswitcher` plugin doesn't require any configuration. You do however need to add the included Twig partials template into your own theme somewhere you want the available languages to be displayed.
 
-```
+```twig
 {% include 'partials/langswitcher.html.twig' %}
 ```
 
@@ -46,13 +46,13 @@ You can now edit the override and tweak it however you prefer.
 
 A second template is available for `hreflang` annotations in the header of the page. In order to emit language annotations for the available languages of a page you need to add the corrsponding Twig partial template into the `<head>` section of your page, which can typically be found in `base.html.twig`:
 
-```
+```twkg
 {% include 'partials/langswitcher.hreflang.html.twig' %}
 ```
 
 This will generate something like:
 
-```
+```html
 <link rel="alternate" href="http://example.com/en" hreflang="en" />
 <link rel="alternate" href="http://example.com/de" hreflang="de" />
 <link rel="alternate" href="http://example.com/zh-cn" hreflang="zh-cn" />
@@ -76,7 +76,7 @@ This command will check your Grav install to see if your LangSwitcher plugin is 
 
 Simply copy the `user/plugins/langswitcher/langswitcher.yaml` into `user/config/plugins/langswitcher.yaml` and make your modifications.
 
-```
+```yaml
 enabled: true
 built_in_css: true
 ```
@@ -86,7 +86,40 @@ Options are pretty self explanatory.
 ## Redirecting after switching language
 
 To have Grav redirect to the default page route after switching language, you must add the following configuration to `user/config/system.yaml`
-```
+
+```yaml
 pages:
   redirect_default_route: true
 ```
+
+## Customization
+
+The default format for the displaying of the languages is to use the native language names in a **long** format (e.g. `English`, `Deutsch`, `Français`).  However, you can change the default output to use **short** names (e.g. `EN`, `DE`, `FR`).
+
+This can be configured via the `langswitcher.yaml` configuration file:
+
+```yaml
+language_display: long              # long | short are the valid options
+```
+
+You can also pass the format in directly via the Twig include:
+
+```twig
+{% include 'partials/langswitcher.hreflang.html.twig' with {display_format: 'short'} %}
+```
+
+Also you can override the two Twig partials that control the actual display of the **long** and **short** output, by copying the partial int your theme's `templates/partials/` folder and modifying:
+
+```twig
+# templates/partials/langswitcher-long.html.twig
+{{ native_name(language)|capitalize }}
+```
+
+and
+
+```twig
+# templates/partials/langswitcher-short.html.twig
+{{ language|upper }}
+```
+
+
