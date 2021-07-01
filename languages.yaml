@@ -7,6 +7,10 @@ en:
     UNTRANSLATED_PAGES_BEHAVIOR_OPTION_NONE: 'Show language (default)'
     UNTRANSLATED_PAGES_BEHAVIOR_OPTION_REDIRECT: 'Show language, link to home route'
     UNTRANSLATED_PAGES_BEHAVIOR_OPTION_HIDE: 'Hide language'
+    LANGUAGE_DISPLAY: 'Language Display'
+    LANGUAGE_DISPLAY_HELP: 'The format of the language display, either "long" (e.g. English), or "short" (e.g. EN)'
+    LANGUAGE_DISPLAY_LONG: 'Long'
+    LANGUAGE_DISPLAY_SHORT: 'Short'
 
 ru:
   PLUGIN_LANGSWITCHER:

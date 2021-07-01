@@ -1,4 +1,5 @@
 <ul class="langswitcher">
+{% set display_format = display_format ?? config.get('plugins.langswitcher.language_display', 'long') %}
 {% for language in langswitcher.languages %}
 
     {% set show_language = true %}
@@ -23,7 +24,7 @@
     {% endif %}
 
     {% if show_language %}
-        <li><a href="{{ lang_url ~ uri.params }}" class="external{{ active_class }}">{{ native_name(language)|capitalize }}</a></li>
+        <li><a href="{{ lang_url ~ uri.params }}" class="external{{ active_class }}">{% include 'partials/langswitcher-' ~ display_format ~ '.html.twig' %}</a></li>
     {% endif %}
 
 {% endfor %}
