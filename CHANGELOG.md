@@ -1,5 +1,5 @@
 # v1.5.0
-## mm/dd/2021
+## 07/01/2021
 
 1. [](#new)
    * Made langswitcher display more customizable.  See README.md for full details.
