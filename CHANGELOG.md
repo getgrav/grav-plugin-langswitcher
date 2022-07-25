@@ -1,3 +1,11 @@
+# v2.0.0
+## mm/dd/2022
+
+1. [](#new)
+    * Support for translated slugs!!!! [#50](https://github.com/getgrav/grav-plugin-langswitcher/pull/50)
+1. [](#improved)
+    * Improved support for home URL [#59](https://github.com/getgrav/grav-plugin-langswitcher/pull/59)   
+
 # v1.5.0
 ## 07/01/2021
 
