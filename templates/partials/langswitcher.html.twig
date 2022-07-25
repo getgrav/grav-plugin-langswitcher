@@ -8,7 +8,7 @@
         {% set active_class = ' active' %}
     {% else %}
         {% set base_lang_url = base_url_simple ~ grav.language.getLanguageURLPrefix(language) %}
-        {% set lang_url = base_lang_url ~ langswitcher.page_route ~ page.urlExtension %}
+        {% set lang_url = base_lang_url ~ langswitcher.translated_routes[language] ~ page.urlExtension %}
         {% set untranslated_pages_behavior = grav.config.plugins.langswitcher.untranslated_pages_behavior %}
         {% if untranslated_pages_behavior != 'none' %}
             {% set translated_page = langswitcher.translated_pages[language] %}
