@@ -1,5 +1,5 @@
 # v2.0.1
-## mm/dd/2022
+## 08/04/2022
 
 1. [](#bugfix)
    * Fixed exception thrown instead of **404 Page not found** [#66](https://github.com/getgrav/grav-plugin-langswitcher/issues/66)
