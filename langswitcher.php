@@ -91,9 +91,12 @@ class LangSwitcherPlugin extends Plugin
                         array_unshift($translated_url_parts, $untranslated_slug);
                     }
                 }
-                $current_node = $current_node->parent();
-                $path = dirname($path);
+            } else {
+                array_unshift($translated_url_parts, $current_node->slug());
             }
+            $current_node = $current_node->parent();
+            $path = dirname($path);
+            
             $max_recursions--;
         }
         if (!empty($translated_url_parts)) {
