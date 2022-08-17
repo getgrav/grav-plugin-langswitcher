@@ -2,8 +2,10 @@
 namespace Grav\Plugin;
 
 use Composer\Autoload\ClassLoader;
+use Grav\Common\Language\Language;
 use Grav\Common\Language\LanguageCodes;
 use Grav\Common\Page\Page;
+use Grav\Common\Page\Pages;
 use \Grav\Common\Plugin;
 
 class LangSwitcherPlugin extends Plugin
@@ -72,36 +74,36 @@ class LangSwitcherPlugin extends Plugin
      */
     protected function getTranslatedUrl($lang, $path)
     {
-        $translated_url_parts = array();
+        /** @var Language $language */
+        $url = null;
+        /** @var Pages $pages */
         $pages = $this->grav['pages'];
-        $page = $pages->get($path);
-        $current_node = $page;
-        $max_recursions = 10;
-        while ($max_recursions > 0 && $current_node !== null && $current_node->slug() != 'pages' && $path != 'pages') {
-            $translated_md_filepath = "{$path}/{$current_node->template()}.{$lang}.md";
-            if (file_exists($translated_md_filepath)) {
-                $translated_page = new Page();
-                $translated_page->init(new \SplFileInfo($translated_md_filepath));
-                $translated_slug = $translated_page->slug();
-                if (!empty($translated_slug)) {
-                    array_unshift($translated_url_parts, $translated_slug);
-                } else {
-                    $untranslated_slug = $current_node->slug();
-                    if (!empty($untranslated_slug)) {
-                        array_unshift($translated_url_parts, $untranslated_slug);
-                    }
-                }
-                $current_node = $current_node->parent();
-                $path = dirname($path);
+        /** @var Page $page */
+        $page = $this->grav['page'];
+        /** @var Language $language */
+        $language = $this->grav['language'];
+
+        $current_active = $language->getActive() ?? $language->getDefault();
+
+        if ($current_active !== $lang) {
+            $language->init();
+            $language->setActive($lang);
+            if (method_exists($pages, 'reset')) {
+                $pages->reset();
             }
-            $max_recursions--;
-        }
-        if (!empty($translated_url_parts)) {
-            array_unshift($translated_url_parts, '');
-            return implode('/', $translated_url_parts);
+
+            $page = $pages->get($path);
+            if ($page->exists()) {
+                $url = $page->url();
+            }
         } else {
-            return '';
+            $url = $page->url();
         }
+
+        $language->setActive($current_active);
+
+        return $url;
+
     }
 
     /**
@@ -126,6 +128,9 @@ class LangSwitcherPlugin extends Plugin
                 $translated_pages[$language] = null;
                 $page_name_without_ext = substr($page->name(), 0, -(strlen($page->extension())));
                 $translated_page_path = $page->path() . DS . $page_name_without_ext . '.' . $language . '.md';
+                if (!file_exists($translated_page_path) and $language == $this->grav['language']->getDefault()) {
+                    $translated_page_path = $page->path() . DS . $page_name_without_ext . '.md';
+                }
                 if (file_exists($translated_page_path)) {
                     $translated_page = new Page();
                     $translated_page->init(new \SplFileInfo($translated_page_path), $language . '.md');
@@ -142,6 +147,9 @@ class LangSwitcherPlugin extends Plugin
                 $data->translated_routes[$language] = $data->page_route;
             }
         }
+
+        // Reset pages to current acxtive language
+        $this->grav['pages']->reset();
 
         $data->current = $this->grav['language']->getLanguage();
 

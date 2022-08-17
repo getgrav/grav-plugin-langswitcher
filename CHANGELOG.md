@@ -1,3 +1,9 @@
+# v3.0.0
+## 08/17/2022
+
+1. [](#new)
+   * Completely rewrote the logic for translated URLs to be more robust.
+
 # v2.0.1
 ## 08/04/2022
 
