@@ -82,16 +82,12 @@ class LangSwitcherPlugin extends Plugin
         $page = $this->grav['page'];
         /** @var Language $language */
         $language = $this->grav['language'];
-
         $current_active = $language->getActive() ?? $language->getDefault();
 
         if ($current_active !== $lang) {
             $language->init();
             $language->setActive($lang);
-            if (method_exists($pages, 'reset')) {
-                $pages->reset();
-            }
-
+            $pages->reset();
             $page = $pages->get($path);
             if ($page->exists()) {
                 $url = $page->url();
@@ -100,10 +96,7 @@ class LangSwitcherPlugin extends Plugin
             $url = $page->url();
         }
 
-        $language->setActive($current_active);
-
         return $url;
-
     }
 
     /**
@@ -140,18 +133,22 @@ class LangSwitcherPlugin extends Plugin
             $data->translated_pages = $translated_pages;
         }
 
+        $language = $this->grav['language'];
+        $active = $language->getActive() ?? $language->getDefault();
+
         $data->translated_routes = array();
-        foreach ($data->languages as $language) {
-            $data->translated_routes[$language] = $this->getTranslatedUrl($language, $page->path());
-            if (empty($data->translated_routes[$language])) {
-                $data->translated_routes[$language] = $data->page_route;
+        foreach ($data->languages as $lang) {
+            $data->translated_routes[$lang] = $this->getTranslatedUrl($lang, $page->path());
+            if (empty($data->translated_routes[$lang])) {
+                $data->translated_routes[$lang] = $data->page_route;
             }
         }
 
-        // Reset pages to current acxtive language
+        // Reset pages to current active language
+        $language->setActive($active);
         $this->grav['pages']->reset();
 
-        $data->current = $this->grav['language']->getLanguage();
+        $data->current = $language->getLanguage();
 
         $this->grav['twig']->twig_vars['langswitcher'] = $this->grav['langswitcher'] = $data;
 
