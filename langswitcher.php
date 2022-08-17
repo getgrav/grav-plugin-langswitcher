@@ -145,6 +145,7 @@ class LangSwitcherPlugin extends Plugin
         }
 
         // Reset pages to current active language
+        $language->init();
         $language->setActive($active);
         $this->grav['pages']->reset();
 
