@@ -136,18 +136,19 @@ class LangSwitcherPlugin extends Plugin
         $language = $this->grav['language'];
         $active = $language->getActive() ?? $language->getDefault();
 
-        $data->translated_routes = array();
-        foreach ($data->languages as $lang) {
-            $data->translated_routes[$lang] = $this->getTranslatedUrl($lang, $page->path());
-            if (empty($data->translated_routes[$lang])) {
-                $data->translated_routes[$lang] = $data->page_route;
+        if ($this->config->get('plugins.langswitcher.translated_urls', true)) {
+            $data->translated_routes = array();
+            foreach ($data->languages as $lang) {
+                $data->translated_routes[$lang] = $this->getTranslatedUrl($lang, $page->path());
+                if (empty($data->translated_routes[$lang])) {
+                    $data->translated_routes[$lang] = $data->page_route;
+                }
             }
+            // Reset pages to current active language
+            $language->init();
+            $language->setActive($active);
+            $this->grav['pages']->reset();
         }
-
-        // Reset pages to current active language
-        $language->init();
-        $language->setActive($active);
-        $this->grav['pages']->reset();
 
         $data->current = $language->getLanguage();
 

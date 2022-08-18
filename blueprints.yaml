@@ -39,6 +39,18 @@ form:
       validate:
         type: bool
 
+    translated_urls:
+      type: toggle
+      label: PLUGIN_LANGSWITCHER.TRANSLATED_URLS
+      help: PLUGIN_LANGSWITCHER.TRANSLATED_URLS_HELP
+      highlight: 1
+      default: 1
+      options:
+        1: PLUGIN_ADMIN.ENABLED
+        0: PLUGIN_ADMIN.DISABLED
+      validate:
+        type: bool
+
     language_display:
       type: select
       size: small
