@@ -87,7 +87,7 @@ class LangSwitcherPlugin extends Plugin
         $language->setActive($lang);
         $pages->reset();
         $page = $pages->get($path);
-        if ($page->exists()) {
+        if ($page) {
             $url = $page->url();
         }
 
