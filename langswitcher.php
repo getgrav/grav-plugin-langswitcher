@@ -82,17 +82,12 @@ class LangSwitcherPlugin extends Plugin
         $page = $this->grav['page'];
         /** @var Language $language */
         $language = $this->grav['language'];
-        $current_active = $language->getActive() ?? $language->getDefault();
 
-        if ($current_active !== $lang) {
-            $language->init();
-            $language->setActive($lang);
-            $pages->reset();
-            $page = $pages->get($path);
-            if ($page->exists()) {
-                $url = $page->url();
-            }
-        } else {
+        $language->init();
+        $language->setActive($lang);
+        $pages->reset();
+        $page = $pages->get($path);
+        if ($page->exists()) {
             $url = $page->url();
         }
 
@@ -138,9 +133,16 @@ class LangSwitcherPlugin extends Plugin
 
         if ($this->config->get('plugins.langswitcher.translated_urls', true)) {
             $data->translated_routes = array();
-            foreach ($data->languages as $lang) {
+            $translate_langs = $data->languages;
+
+            if (($key = array_search($active, $translate_langs)) !== false) {
+                $data->translated_routes[$active] = $page->url();
+                unset($translate_langs[$key]);
+            }
+
+            foreach ($translate_langs as $lang) {
                 $data->translated_routes[$lang] = $this->getTranslatedUrl($lang, $page->path());
-                if (empty($data->translated_routes[$lang])) {
+                if (is_null($data->translated_routes[$lang])) {
                     $data->translated_routes[$lang] = $data->page_route;
                 }
             }
