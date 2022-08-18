@@ -4,7 +4,9 @@
 1. [](#new)
    * Completely rewrote the logic for translated URLs to be more robust.
    * Added configuration option to use **Translated URLs** or use previous **Raw-Route** approach
-
+1. [](#improved)
+   * Updated `hreflang` Twig template to use new translated URLs logic
+     
 # v2.0.1
 ## 08/04/2022
 
