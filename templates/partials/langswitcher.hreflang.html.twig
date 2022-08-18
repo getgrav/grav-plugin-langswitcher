@@ -1,3 +1,4 @@
+{% set language_obj = grav.language %}
 {% for language in langswitcher.languages %}
 	{% if language == langswitcher.current %}
 		{% set lang_url = page.url %}
@@ -9,6 +10,9 @@
 			{% set base_lang_url = base_url_simple ~ grav.language.getLanguageURLPrefix(language) %}
 			{% set lang_url = base_lang_url ~ langswitcher.page_route ~ page.urlExtension %}
 		{% endif %}
+	{% endif %}
+	{% if (language_obj.default == language and config.languages.include_default_lang == false) %}
+	<link rel="alternate" hreflang="x-default" href="{{ url(lang_url ~ uri.params) }}" />
 	{% endif %}
 	<link rel="alternate" hreflang="{{ language }}" href="{{ url(lang_url ~ uri.params) }}" />
 {% endfor %}

@@ -6,6 +6,7 @@
    * Added configuration option to use **Translated URLs** or use previous **Raw-Route** approach
 1. [](#improved)
    * Updated `hreflang` Twig template to use new translated URLs logic
+   * Added an `x-default` entry for `hreflang` template when default language has `include_default_lang` set to false
      
 # v2.0.1
 ## 08/04/2022
