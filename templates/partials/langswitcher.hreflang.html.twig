@@ -12,7 +12,7 @@
 		{% endif %}
 	{% endif %}
 	{% if (language_obj.default == language and config.languages.include_default_lang == false) %}
-	<link rel="alternate" hreflang="x-default" href="{{ url(lang_url ~ uri.params) }}" />
+	<link rel="alternate" hreflang="x-default" href="{{ url(lang_url ~ uri.params ~ (uri.query|length > 1 ? '?' ~ uri.query : uri.params)) }}" />
 	{% endif %}
-	<link rel="alternate" hreflang="{{ language }}" href="{{ url(lang_url ~ uri.params) }}" />
+	<link rel="alternate" hreflang="{{ language }}" href="{{ url(lang_url ~ uri.params ~ (uri.query|length > 1 ? '?' ~ uri.query : uri.params)) }}" />
 {% endfor %}

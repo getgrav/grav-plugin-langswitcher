@@ -28,7 +28,7 @@
     {% endif %}
 
     {% if show_language %}
-        <li><a href="{{ url(lang_url ~ uri.params) }}" class="external{{ active_class }}">{% include 'partials/langswitcher-' ~ display_format ~ '.html.twig' %}</a></li>
+        <li><a href="{{ url(lang_url ~ uri.params ~ (uri.query|length > 1 ? '?' ~ uri.query : uri.params)) }}" class="external{{ active_class }}">{% include 'partials/langswitcher-' ~ display_format ~ '.html.twig' %}</a></li>
     {% endif %}
 
 {% endfor %}
