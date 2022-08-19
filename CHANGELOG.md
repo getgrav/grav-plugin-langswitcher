@@ -1,3 +1,9 @@
+# v3.0.1
+## 08/19/2022
+
+1. [](#bugfix)
+   * Fixed another issue with incorrect `hreflang` URLs
+
 # v3.0.0
 ## 08/19/2022
 
