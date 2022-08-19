@@ -78,8 +78,6 @@ class LangSwitcherPlugin extends Plugin
         $url = null;
         /** @var Pages $pages */
         $pages = $this->grav['pages'];
-        /** @var Page $page */
-        $page = $this->grav['page'];
         /** @var Language $language */
         $language = $this->grav['language'];
 
@@ -90,7 +88,6 @@ class LangSwitcherPlugin extends Plugin
         if ($page) {
             $url = $page->url();
         }
-
         return $url;
     }
 
