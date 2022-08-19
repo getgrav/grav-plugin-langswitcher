@@ -8,6 +8,7 @@
    * Updated `hreflang` Twig template to use new translated URLs logic
    * Added an `x-default` entry for `hreflang` template when default language has `include_default_lang` set to false
    * Support `params` and `query` string parameters in URLs
+   * Full domain URLs for `hreflang` entries
      
 # v2.0.1
 ## 08/04/2022
