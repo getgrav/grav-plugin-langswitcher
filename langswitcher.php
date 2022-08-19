@@ -2,8 +2,10 @@
 namespace Grav\Plugin;
 
 use Composer\Autoload\ClassLoader;
+use Grav\Common\Language\Language;
 use Grav\Common\Language\LanguageCodes;
 use Grav\Common\Page\Page;
+use Grav\Common\Page\Pages;
 use \Grav\Common\Plugin;
 
 class LangSwitcherPlugin extends Plugin
@@ -72,36 +74,21 @@ class LangSwitcherPlugin extends Plugin
      */
     protected function getTranslatedUrl($lang, $path)
     {
-        $translated_url_parts = array();
+        /** @var Language $language */
+        $url = null;
+        /** @var Pages $pages */
         $pages = $this->grav['pages'];
+        /** @var Language $language */
+        $language = $this->grav['language'];
+
+        $language->init();
+        $language->setActive($lang);
+        $pages->reset();
         $page = $pages->get($path);
-        $current_node = $page;
-        $max_recursions = 10;
-        while ($max_recursions > 0 && $current_node !== null && $current_node->slug() != 'pages' && $path != 'pages') {
-            $translated_md_filepath = "{$path}/{$current_node->template()}.{$lang}.md";
-            if (file_exists($translated_md_filepath)) {
-                $translated_page = new Page();
-                $translated_page->init(new \SplFileInfo($translated_md_filepath));
-                $translated_slug = $translated_page->slug();
-                if (!empty($translated_slug)) {
-                    array_unshift($translated_url_parts, $translated_slug);
-                } else {
-                    $untranslated_slug = $current_node->slug();
-                    if (!empty($untranslated_slug)) {
-                        array_unshift($translated_url_parts, $untranslated_slug);
-                    }
-                }
-                $current_node = $current_node->parent();
-                $path = dirname($path);
-            }
-            $max_recursions--;
+        if ($page) {
+            $url = $page->url();
         }
-        if (!empty($translated_url_parts)) {
-            array_unshift($translated_url_parts, '');
-            return implode('/', $translated_url_parts);
-        } else {
-            return '';
-        }
+        return $url;
     }
 
     /**
@@ -126,6 +113,9 @@ class LangSwitcherPlugin extends Plugin
                 $translated_pages[$language] = null;
                 $page_name_without_ext = substr($page->name(), 0, -(strlen($page->extension())));
                 $translated_page_path = $page->path() . DS . $page_name_without_ext . '.' . $language . '.md';
+                if (!file_exists($translated_page_path) and $language == $this->grav['language']->getDefault()) {
+                    $translated_page_path = $page->path() . DS . $page_name_without_ext . '.md';
+                }
                 if (file_exists($translated_page_path)) {
                     $translated_page = new Page();
                     $translated_page->init(new \SplFileInfo($translated_page_path), $language . '.md');
@@ -135,15 +125,31 @@ class LangSwitcherPlugin extends Plugin
             $data->translated_pages = $translated_pages;
         }
 
-        $data->translated_routes = array();
-        foreach ($data->languages as $language) {
-            $data->translated_routes[$language] = $this->getTranslatedUrl($language, $page->path());
-            if (empty($data->translated_routes[$language])) {
-                $data->translated_routes[$language] = $data->page_route;
+        $language = $this->grav['language'];
+        $active = $language->getActive() ?? $language->getDefault();
+
+        if ($this->config->get('plugins.langswitcher.translated_urls', true)) {
+            $data->translated_routes = array();
+            $translate_langs = $data->languages;
+
+            if (($key = array_search($active, $translate_langs)) !== false) {
+                $data->translated_routes[$active] = $page->url();
+                unset($translate_langs[$key]);
             }
+
+            foreach ($translate_langs as $lang) {
+                $data->translated_routes[$lang] = $this->getTranslatedUrl($lang, $page->path());
+                if (is_null($data->translated_routes[$lang])) {
+                    $data->translated_routes[$lang] = $data->page_route;
+                }
+            }
+            // Reset pages to current active language
+            $language->init();
+            $language->setActive($active);
+            $this->grav['pages']->reset();
         }
 
-        $data->current = $this->grav['language']->getLanguage();
+        $data->current = $language->getLanguage();
 
         $this->grav['twig']->twig_vars['langswitcher'] = $this->grav['langswitcher'] = $data;
 

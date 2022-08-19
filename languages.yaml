@@ -11,6 +11,8 @@ en:
     LANGUAGE_DISPLAY_HELP: 'The format of the language display, either "long" (e.g. English), or "short" (e.g. EN)'
     LANGUAGE_DISPLAY_LONG: 'Long'
     LANGUAGE_DISPLAY_SHORT: 'Short'
+    TRANSLATED_URLS: 'Translated URLs'
+    TRANSLATED_URLS_HELP: 'Use the actual translated page URL rather then the raw-route'
 
 ru:
   PLUGIN_LANGSWITCHER:
