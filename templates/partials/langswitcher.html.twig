@@ -5,7 +5,7 @@
 
         {% set show_language = true %}
         {% if language == langswitcher.current %}
-            {% set active_class = ' active' %}
+            {% set active_class = 'active' %}
         {% endif %}
         {% if langswitcher.translated_routes[language] %}
             {% set lang_url = langswitcher.translated_routes[language] ~ page.urlExtension %}
@@ -27,7 +27,7 @@
         {% set active_class = '' %}
 
         {% if show_language %}
-            <li><a href="{{ lang_url ~ uri.params ~ (uri.query|length > 1 ? '?' ~ uri.query) }}" class="external{{ active_class }}">{% include 'partials/langswitcher-' ~ display_format ~ '.html.twig' %}</a></li>
+            <li><a href="{{ lang_url ~ uri.params ~ (uri.query|length > 1 ? '?' ~ uri.query) }}" class="external {{ active_class }}">{% include 'partials/langswitcher-' ~ display_format ~ '.html.twig' %}</a></li>
         {% endif %}
 
     {% endfor %}
