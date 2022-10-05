@@ -1,3 +1,10 @@
+# v3.0.2
+## 10/05/2022
+
+1. [](#new)
+   * Require Grav `1.7.37` to make use of the new `Pages::getSimplePagesHash()` method
+   * Added caching to `translated_routes` so translation work is only performed on the first load, resulting in faster subsequent page loads
+
 # v3.0.1
 ## 08/19/2022
 
