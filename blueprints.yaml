@@ -11,7 +11,7 @@ keywords: mulitlang, multilanguage, translation, switcher
 bugs: https://github.com/getgrav/grav-plugin-langswitcher/issues
 license: MIT
 dependencies:
-  - { name: grav, version: '>=1.7.0' }
+  - { name: grav, version: '>=1.7.37' }
 
 form:
   validation: strict
