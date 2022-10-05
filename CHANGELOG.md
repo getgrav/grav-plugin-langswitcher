@@ -1,5 +1,5 @@
 # v3.0.2
-## mm/dd/2022
+## 10/05/2022
 
 1. [](#new)
    * Require Grav `1.7.37` to make use of the new `Pages::getSimplePagesHash()` method
