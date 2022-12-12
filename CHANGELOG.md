@@ -1,5 +1,5 @@
-# v3.0.3
-## mm/dd/2022
+# v3.1.0
+## 12/12/2022
 
 1. [](#new)
    * Using blocks in `partials/langswitcher.html.twig` to make it easier to extend without having to copy the logic
