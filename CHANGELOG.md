@@ -1,3 +1,9 @@
+# v3.1.0
+## 12/12/2022
+
+1. [](#new)
+   * Using blocks in `partials/langswitcher.html.twig` to make it easier to extend without having to copy the logic
+
 # v3.0.2
 ## 10/05/2022
 
