@@ -1,0 +1,29 @@
+{{ block('language_block_start') }}
+    {% set display_format = display_format ?? config.get('plugins.langswitcher.language_display', 'long') %}
+
+    {% for language in langswitcher.languages %}
+        {% set active_class = '' %}
+        {% set show_language = true %}
+        {% if language == langswitcher.current %}
+            {% set active_class = 'active' %}
+        {% endif %}
+        {% if langswitcher.translated_routes[language] %}
+            {% set lang_url = langswitcher.translated_routes[language] ~ page.urlExtension %}
+        {% else %}
+            {% set base_lang_url = base_url_simple ~ grav.language.getLanguageURLPrefix(language) %}
+            {% set lang_url = base_lang_url ~ langswitcher.page_route ~ page.urlExtension %}
+        {% endif %}
+        {% set untranslated_pages_behavior = grav.config.plugins.langswitcher.untranslated_pages_behavior %}
+        {% if untranslated_pages_behavior != 'none' %}
+            {% set translated_page = langswitcher.translated_pages[language] %}
+            {% if (not translated_page) or (not translated_page.published) %}
+                {% if untranslated_pages_behavior == 'redirect' %}
+                    {% set lang_url = url('/') %}
+                {% elseif untranslated_pages_behavior == 'hide' %}
+                    {% set show_language = false %}
+                {% endif %}
+            {% endif %}
+        {% endif %}
+        {{ block('language_item') }}
+    {% endfor %}
+{{ block('language_block_end') }}
