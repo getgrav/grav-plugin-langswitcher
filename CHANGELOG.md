@@ -1,5 +1,5 @@
 # v3.1.1
-## mm/dd/2023
+## 09/10/2023
 
 1. [](#improved)
    * Fixed a PHP 8.2+ deprecation issue
