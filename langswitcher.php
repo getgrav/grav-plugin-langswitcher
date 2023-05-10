@@ -141,9 +141,9 @@ class LangSwitcherPlugin extends Plugin
         $active = $language->getActive() ?? $language->getDefault();
 
         if ($this->config->get('plugins.langswitcher.translated_urls', true)) {
-            $data->translated_routes = $cache->fetch($translated_cache_key);
+            $data->translated_routes = $cache->fetch($translated_cache_key) ?: [];
 
-            if ($data->translated_routes === false) {
+            if (empty($data->translated_routes)) {
                 $translate_langs = $data->languages;
 
                 if (($key = array_search($active, $translate_langs)) !== false) {
