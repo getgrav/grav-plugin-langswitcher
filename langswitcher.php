@@ -9,9 +9,16 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Page;
 use Grav\Common\Page\Pages;
 use \Grav\Common\Plugin;
+use Twig\TwigFunction;
 
 class LangSwitcherPlugin extends Plugin
 {
+    /**
+     * Cached per-language route maps indexed by language code.
+     *
+     * @var array
+     */
+    protected $languageRouteMap = [];
 
     /**
      * @return array
@@ -57,7 +64,7 @@ class LangSwitcherPlugin extends Plugin
     public function onTwigInitialized()
     {
         $this->grav['twig']->twig()->addFunction(
-            new \Twig_SimpleFunction('native_name', function($key) {
+            new TwigFunction('native_name', function($key) {
                 return LanguageCodes::getNativeName($key);
             })
         );
@@ -72,25 +79,81 @@ class LangSwitcherPlugin extends Plugin
     }
 
     /**
+     * Build or fetch a cached map of page paths to translated URLs for a given language.
+     *
+     * @param string $lang
+     * @return array
+     */
+    protected function getLanguageRouteMap($lang)
+    {
+        if (isset($this->languageRouteMap[$lang])) {
+            return $this->languageRouteMap[$lang];
+        }
+
+        /** @var Pages $pages */
+        $pages = $this->grav['pages'];
+        /** @var Cache $cache */
+        $cache = $this->grav['cache'];
+        /** @var Language $language */
+        $language = $this->grav['language'];
+
+        $pages_hash = $pages->getSimplePagesHash();
+        $cache_key = null;
+
+        if ($pages_hash !== null) {
+            $cache_key = md5('langswitcher_routes_' . $lang . '_' . $pages_hash);
+            $cached = $cache->fetch($cache_key);
+            if (is_array($cached)) {
+                $this->languageRouteMap[$lang] = $cached;
+
+                return $this->languageRouteMap[$lang];
+            }
+        }
+
+        $map = [];
+        $active = $language->getActive() ?? $language->getDefault();
+        $restore_language = $lang !== $active;
+
+        if ($restore_language) {
+            $language->init();
+            $language->setActive($lang);
+            $pages->reset();
+        }
+
+        foreach ($pages->routes() as $page_path) {
+            $page = $pages->get($page_path);
+            if ($page) {
+                $map[$page_path] = $page->url();
+            }
+        }
+
+        if ($restore_language) {
+            $language->init();
+            $language->setActive($active);
+            $pages->reset();
+        }
+
+        if ($cache_key !== null) {
+            $cache->save($cache_key, $map);
+        }
+
+        $this->languageRouteMap[$lang] = $map;
+
+        return $this->languageRouteMap[$lang];
+    }
+
+    /**
      * Generate localized route based on the translated slugs found through the pages hierarchy
      */
     protected function getTranslatedUrl($lang, $path)
     {
-        /** @var Language $language */
-        $url = null;
-        /** @var Pages $pages */
-        $pages = $this->grav['pages'];
-        /** @var Language $language */
-        $language = $this->grav['language'];
-
-        $language->init();
-        $language->setActive($lang);
-        $pages->reset();
-        $page = $pages->get($path);
-        if ($page) {
-            $url = $page->url();
+        if (empty($path)) {
+            return null;
         }
-        return $url;
+
+        $map = $this->getLanguageRouteMap($lang);
+
+        return $map[$path] ?? null;
     }
 
     /**
@@ -105,16 +168,11 @@ class LangSwitcherPlugin extends Plugin
         /** @var Pages $pages */
         $pages = $this->grav['pages'];
 
-        /** @var Cache $cache */
-        $cache = $this->grav['cache'];
-
         $data = new \stdClass;
         $data->page_route = $page->rawRoute();
         if ($page->home()) {
             $data->page_route = '/';
         }
-
-        $translated_cache_key = md5('translated_cache_key'.$data->page_route.$pages->getSimplePagesHash());
 
         $languages = $this->grav['language']->getLanguages();
         $data->languages = $languages;
@@ -141,27 +199,15 @@ class LangSwitcherPlugin extends Plugin
         $active = $language->getActive() ?? $language->getDefault();
 
         if ($this->config->get('plugins.langswitcher.translated_urls', true)) {
-            $data->translated_routes = $cache->fetch($translated_cache_key) ?: [];
+            $data->translated_routes = [$active => $page->url()];
 
-            if (empty($data->translated_routes)) {
-                $translate_langs = $data->languages;
-
-                if (($key = array_search($active, $translate_langs)) !== false) {
-                    $data->translated_routes[$active] = $page->url();
-                    unset($translate_langs[$key]);
+            foreach ($data->languages as $lang) {
+                if ($lang === $active) {
+                    continue;
                 }
 
-                foreach ($translate_langs as $lang) {
-                    $data->translated_routes[$lang] = $this->getTranslatedUrl($lang, $page->path());
-                    if (is_null($data->translated_routes[$lang])) {
-                        $data->translated_routes[$lang] = $data->page_route;
-                    }
-                }
-                // Reset pages to current active language
-                $language->init();
-                $language->setActive($active);
-                $this->grav['pages']->reset();
-                $cache->save($translated_cache_key, $data->translated_routes);
+                $translated = $this->getTranslatedUrl($lang, $page->path());
+                $data->translated_routes[$lang] = $translated ?? $data->page_route;
             }
         }
 
