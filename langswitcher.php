@@ -3,23 +3,18 @@ namespace Grav\Plugin;
 
 use Composer\Autoload\ClassLoader;
 use Grav\Common\Cache;
+use Grav\Common\File\CompiledMarkdownFile;
 use Grav\Common\Language\Language;
 use Grav\Common\Language\LanguageCodes;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Page;
 use Grav\Common\Page\Pages;
-use \Grav\Common\Plugin;
+use Grav\Common\Plugin;
+use Grav\Common\Utils;
 use Twig\TwigFunction;
 
 class LangSwitcherPlugin extends Plugin
 {
-    /**
-     * Cached per-language route maps indexed by language code.
-     *
-     * @var array
-     */
-    protected $languageRouteMap = [];
-
     /**
      * @return array
      */
@@ -79,70 +74,6 @@ class LangSwitcherPlugin extends Plugin
     }
 
     /**
-     * Build or fetch a cached map of page paths to translated URLs for a given language.
-     *
-     * @param string $lang
-     * @return array
-     */
-    protected function getLanguageRouteMap($lang)
-    {
-        if (isset($this->languageRouteMap[$lang])) {
-            return $this->languageRouteMap[$lang];
-        }
-
-        /** @var Pages $pages */
-        $pages = $this->grav['pages'];
-        /** @var Cache $cache */
-        $cache = $this->grav['cache'];
-        /** @var Language $language */
-        $language = $this->grav['language'];
-
-        $pages_hash = $pages->getSimplePagesHash();
-        $cache_key = null;
-
-        if ($pages_hash !== null) {
-            $cache_key = md5('langswitcher_routes_' . $lang . '_' . $pages_hash);
-            $cached = $cache->fetch($cache_key);
-            if (is_array($cached)) {
-                $this->languageRouteMap[$lang] = $cached;
-
-                return $this->languageRouteMap[$lang];
-            }
-        }
-
-        $map = [];
-        $active = $language->getActive() ?? $language->getDefault();
-        $restore_language = $lang !== $active;
-
-        if ($restore_language) {
-            $language->init();
-            $language->setActive($lang);
-            $pages->reset();
-        }
-
-        foreach ($pages->routes() as $page_path) {
-            $page = $pages->get($page_path);
-            if ($page) {
-                $map[$page_path] = $page->url();
-            }
-        }
-
-        if ($restore_language) {
-            $language->init();
-            $language->setActive($active);
-            $pages->reset();
-        }
-
-        if ($cache_key !== null) {
-            $cache->save($cache_key, $map);
-        }
-
-        $this->languageRouteMap[$lang] = $map;
-
-        return $this->languageRouteMap[$lang];
-    }
-
-    /**
      * Generate localized route based on the translated slugs found through the pages hierarchy
      */
     protected function getTranslatedUrl($lang, $path)
@@ -151,9 +82,110 @@ class LangSwitcherPlugin extends Plugin
             return null;
         }
 
-        $map = $this->getLanguageRouteMap($lang);
+        $cache_key = 'langswitcher_url_' . $lang . '_' . md5($path);
+        $cache = $this->grav['cache'];
+        $cached = $cache->fetch($cache_key);
 
-        return $map[$path] ?? null;
+        if ($cached !== false) {
+            return $cached;
+        }
+
+        $url = $this->resolveTranslatedRoute($lang, $path);
+
+        $cache->save($cache_key, $url);
+
+        return $url;
+    }
+
+    protected function resolveTranslatedRoute($lang, $path)
+    {
+        $pages_dir = $this->grav['locator']->findResource('page://');
+
+        if (strpos($path, $pages_dir) === 0) {
+            $rel_path = substr($path, strlen($pages_dir));
+        } else {
+            return null;
+        }
+
+        $parts = explode('/', ltrim($rel_path, '/'));
+        $current_path = $pages_dir;
+        $slugs = [];
+
+        foreach ($parts as $part) {
+            if (empty($part)) continue;
+            $current_path .= '/' . $part;
+
+            $match = null;
+            $files = glob($current_path . '/*.md');
+
+            if ($files) {
+                foreach ($files as $file) {
+                    $name = basename($file);
+                    if (Utils::endsWith($name, ".$lang.md")) {
+                        $match = $file;
+                        break;
+                    }
+                }
+
+                if (!$match) {
+                    foreach ($files as $file) {
+                        $name = basename($file);
+                        if (!preg_match('/\\.[a-z]{2}\\.md$/', $name)) {
+                            $match = $file;
+                            break;
+                        }
+                        $default = $this->grav['language']->getDefault();
+                        if (Utils::endsWith($name, ".$default.md")) {
+                            $match = $file;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if ($match) {
+                $file = CompiledMarkdownFile::instance($match);
+                $header = $file->header();
+                $folder_slug = preg_replace('/^[0-9]+\./u', '', $part);
+                $slug = $header['slug'] ?? $folder_slug;
+                $slugs[] = $slug;
+            } else {
+                return null;
+            }
+        }
+
+        $route = implode('/', $slugs);
+        $home_alias = $this->config->get('system.home.alias');
+        if ($route == trim($home_alias, '/')) {
+            $route = '';
+        }
+
+        if ($this->config->get('system.force_lowercase_urls')) {
+            $route = mb_strtolower($route);
+        }
+
+        $uri = $this->grav['uri'];
+        $language = $this->grav['language'];
+
+        $base = $uri->rootUrl($this->config->get('system.absolute_urls'));
+
+        $include_default = $this->config->get('system.languages.include_default_lang');
+        $default = $language->getDefault();
+
+        $lang_prefix = '';
+        if ($include_default || $lang !== $default) {
+            $lang_prefix = '/' . $lang;
+        }
+
+        $url = $base . $lang_prefix . ($route ? '/' . $route : '');
+
+        $ext = '';
+        if ($this->config->get('system.pages.append_url_extension')) {
+            $ext = '.' . $this->config->get('system.pages.extension', 'html');
+        }
+        $url .= $ext;
+
+        return $url;
     }
 
     /**
