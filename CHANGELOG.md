@@ -1,3 +1,9 @@
+# v3.2.0
+## 10/21/2024
+
+1. [](#improved)
+    * More performance updates with improved lightweight caching
+
 # v3.1.1
 ## 05/10/2023
 
