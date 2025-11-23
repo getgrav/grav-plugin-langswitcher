@@ -3,3 +3,4 @@ built_in_css: true
 translated_urls: true
 untranslated_pages_behavior: none
 language_display: long
+hide_active: true
