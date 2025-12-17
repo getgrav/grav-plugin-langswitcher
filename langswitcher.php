@@ -148,6 +148,11 @@ class LangSwitcherPlugin extends Plugin
                 $header = $file->header();
                 $folder_slug = preg_replace('/^[0-9]+\./u', '', $part);
                 $slug = $header['slug'] ?? $folder_slug;
+                $home_alias = trim($this->config->get('system.home.alias'), '/');
+                $hide_home = $this->config->get('system.home.hide_in_urls'); // Check Grav's settings to hide or show the home page path.
+                if ($hide_home && $slug === $home_alias) {
+                    continue;
+                }
                 $slugs[] = $slug;
             } else {
                 return null;
