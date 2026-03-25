@@ -128,16 +128,36 @@ class LangSwitcherPlugin extends Plugin
                 }
 
                 if (!$match) {
-                    foreach ($files as $file) {
-                        $name = basename($file);
-                        if (!preg_match('/\\.[a-z]{2}\\.md$/', $name)) {
-                            $match = $file;
-                            break;
+                    // Build fallback chain from content_fallback config
+                    $fallback_langs = [];
+                    $content_fallback = $this->config->get('system.languages.content_fallback.' . $lang);
+                    if ($content_fallback) {
+                        $fallback_langs = is_array($content_fallback) ? $content_fallback : array_map('trim', explode(',', $content_fallback));
+                    }
+                    $default = $this->grav['language']->getDefault();
+                    if (!in_array($default, $fallback_langs)) {
+                        $fallback_langs[] = $default;
+                    }
+
+                    // Try each fallback language in order
+                    foreach ($fallback_langs as $fallback_lang) {
+                        foreach ($files as $file) {
+                            $name = basename($file);
+                            if (Utils::endsWith($name, ".$fallback_lang.md")) {
+                                $match = $file;
+                                break 2;
+                            }
                         }
-                        $default = $this->grav['language']->getDefault();
-                        if (Utils::endsWith($name, ".$default.md")) {
-                            $match = $file;
-                            break;
+                    }
+
+                    // Last resort: language-neutral file
+                    if (!$match) {
+                        foreach ($files as $file) {
+                            $name = basename($file);
+                            if (!preg_match('/\\.[a-z]{2}(-[a-z]{2})?\\.md$/', $name)) {
+                                $match = $file;
+                                break;
+                            }
                         }
                     }
                 }
@@ -155,6 +175,12 @@ class LangSwitcherPlugin extends Plugin
         }
 
         $route = implode('/', $slugs);
+
+        // If the translated page has a route override, use it instead of the slug-based path
+        if (isset($header['routes']['default'])) {
+            $route = ltrim($header['routes']['default'], '/');
+        }
+
         $home_alias = $this->config->get('system.home.alias');
         if ($route == trim($home_alias, '/')) {
             $route = '';
@@ -201,7 +227,7 @@ class LangSwitcherPlugin extends Plugin
         $pages = $this->grav['pages'];
 
         $data = new \stdClass;
-        $data->page_route = $page->rawRoute();
+        $data->page_route = $page->route();
         if ($page->home()) {
             $data->page_route = '/';
         }
