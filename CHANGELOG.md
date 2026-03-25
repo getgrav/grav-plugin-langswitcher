@@ -1,3 +1,12 @@
+# v3.3.0
+## 03/25/2026
+
+1. [](#improved)
+    * Implement home page url visibility based on settings [#81](https://github.com/getgrav/grav-plugin-langswitcher/pull/81)
+1. [](#bugfix)
+    * Fixed fallback regex to support regional language codes (e.g., `en-us`, `fr-ca`, `de-de`) in addition to simple two-letter codes
+    * Fixed translated URL fallback to respect `system.languages.content_fallback` chain rather than always falling back to the default language
+
 # v3.2.0
 ## 10/21/2024
 
