@@ -33,3 +33,18 @@ uk:
     UNTRANSLATED_PAGES_BEHAVIOR_OPTION_NONE: 'Показати мову (за умовчанням)'
     UNTRANSLATED_PAGES_BEHAVIOR_OPTION_REDIRECT: 'Показати мову, посилання на домашню сторінку'
     UNTRANSLATED_PAGES_BEHAVIOR_OPTION_HIDE: 'Приховати мову'
+es:
+  PLUGIN_LANGSWITCHER:
+    BUILTIN_CSS: 'Usar CSS integrado'
+    BUILTIN_CSS_HELP: 'Incluir el CSS proporcionado por el plugin LangSwitcher.'
+    UNTRANSLATED_PAGES_BEHAVIOR: 'Comportamiento de páginas no traducidas'
+    UNTRANSLATED_PAGES_BEHAVIOR_HELP: "Determinar qué hacer con un enlace de idioma cuando la página actual no existe en ese idioma o existe pero no está publicada."
+    UNTRANSLATED_PAGES_BEHAVIOR_OPTION_NONE: 'Mostrar idioma (predeterminado)'
+    UNTRANSLATED_PAGES_BEHAVIOR_OPTION_REDIRECT: 'Mostrar idioma, enlace a ruta de inicio'
+    UNTRANSLATED_PAGES_BEHAVIOR_OPTION_HIDE: 'Ocultar idioma'
+    LANGUAGE_DISPLAY: 'Mostrar Idioma'
+    LANGUAGE_DISPLAY_HELP: 'El formato de visualización del idioma, ya sea "largo" (ej: inglés) o "corto" (ej: EN)'
+    LANGUAGE_DISPLAY_LONG: 'Largo'
+    LANGUAGE_DISPLAY_SHORT: 'Corto'
+    TRANSLATED_URLS: 'URL traducidas'
+    TRANSLATED_URLS_HELP: 'Utilice la URL de la página traducida real en lugar de la ruta sin formato'
