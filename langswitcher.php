@@ -270,7 +270,7 @@ class LangSwitcherPlugin extends Plugin
                 }
 
                 $translated = $this->getTranslatedUrl($lang, $page->path());
-                $data->translated_routes[$lang] = $translated ?? $data->page_route;
+                $data->translated_routes[$lang] = $translated ?: $data->page_route;
             }
         }
 
