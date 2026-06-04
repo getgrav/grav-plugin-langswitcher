@@ -1,3 +1,9 @@
+# v3.3.2
+## 06/04/2026
+
+1. [](#bugfix)
+    * Fixed the language switcher not reverting to the default language on the home page when the site is hosted at the domain root — the translated route resolved to an empty string and was kept instead of falling back to the page route. Thanks @thekenshow [#82](https://github.com/getgrav/grav-plugin-langswitcher/pull/82)
+
 # v3.3.1
 ## 05/01/2026
 
