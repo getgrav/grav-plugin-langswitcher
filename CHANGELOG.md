@@ -1,3 +1,9 @@
+# v3.3.3
+## 06/07/2026
+
+1. [](#bugfix)
+    * Fixed switching back to the default language when `include_default_lang` is off and the active language is kept in the session, by exposing a new `switcher_routes` with an explicit prefix on the default language ([#83](https://github.com/getgrav/grav-plugin-langswitcher/issues/83))
+
 # v3.3.2
 ## 06/04/2026
 
