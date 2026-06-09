@@ -1,3 +1,9 @@
+# v3.3.3
+## 06/09/2026
+
+1. [](#bugfix)
+    * Fixed switching back to the default language when `include_default_lang` is off and the active language is kept in the session, by exposing a new `switcher_routes` with an explicit prefix on the default language ([#83](https://github.com/getgrav/grav-plugin-langswitcher/issues/83))
+
 # v3.3.2
 ## 06/04/2026
 
@@ -61,7 +67,7 @@
    * Added an `x-default` entry for `hreflang` template when default language has `include_default_lang` set to false
    * Support `params` and `query` string parameters in URLs
    * Full domain URLs for `hreflang` entries
-     
+
 # v2.0.1
 ## 08/04/2022
 
@@ -75,7 +81,7 @@
     * Support for translated slugs!!!! [#50](https://github.com/getgrav/grav-plugin-langswitcher/pull/50)
     * Require Grav `1.7`
 1. [](#improved)
-    * Improved support for home URL [#59](https://github.com/getgrav/grav-plugin-langswitcher/pull/59)   
+    * Improved support for home URL [#59](https://github.com/getgrav/grav-plugin-langswitcher/pull/59)
 
 # v1.5.0
 ## 07/01/2021

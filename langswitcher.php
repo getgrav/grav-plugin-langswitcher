@@ -76,13 +76,13 @@ class LangSwitcherPlugin extends Plugin
     /**
      * Generate localized route based on the translated slugs found through the pages hierarchy
      */
-    protected function getTranslatedUrl($lang, $path)
+    protected function getTranslatedUrl($lang, $path, $force_prefix = false)
     {
         if (empty($path)) {
             return null;
         }
 
-        $cache_key = 'langswitcher_url_' . $lang . '_' . md5($path);
+        $cache_key = 'langswitcher_url_' . $lang . '_' . ($force_prefix ? 'p_' : '') . md5($path);
         $cache = $this->grav['cache'];
         $cached = $cache->fetch($cache_key);
 
@@ -90,14 +90,14 @@ class LangSwitcherPlugin extends Plugin
             return $cached;
         }
 
-        $url = $this->resolveTranslatedRoute($lang, $path);
+        $url = $this->resolveTranslatedRoute($lang, $path, $force_prefix);
 
         $cache->save($cache_key, $url);
 
         return $url;
     }
 
-    protected function resolveTranslatedRoute($lang, $path)
+    protected function resolveTranslatedRoute($lang, $path, $force_prefix = false)
     {
         $pages_dir = $this->grav['locator']->findResource('page://');
 
@@ -204,7 +204,7 @@ class LangSwitcherPlugin extends Plugin
         $default = $language->getDefault();
 
         $lang_prefix = '';
-        if ($include_default || $lang !== $default) {
+        if ($include_default || $lang !== $default || $force_prefix) {
             $lang_prefix = '/' . $lang;
         }
 
@@ -271,6 +271,23 @@ class LangSwitcherPlugin extends Plugin
 
                 $translated = $this->getTranslatedUrl($lang, $page->path());
                 $data->translated_routes[$lang] = $translated ?: $data->page_route;
+            }
+
+            // Build a switcher-specific copy of the routes. When the default language has no URL
+            // prefix (include_default_lang=false) but the active language is stored in the session,
+            // the prefix-less default URL can't reset the session back to the default. Force the
+            // explicit /<lang> prefix on the default-language switch link so Grav picks it up and
+            // resets the session (it then redirects to the canonical prefix-less URL). Kept separate
+            // from translated_routes so hreflang/canonical output stays prefix-less.
+            $data->switcher_routes = $data->translated_routes;
+            $default = $language->getDefault();
+            $include_default = $this->config->get('system.languages.include_default_lang');
+            $session_store_active = $this->config->get('system.languages.session_store_active', true);
+            if (!$include_default && $session_store_active && $active !== $default) {
+                $prefixed = $this->getTranslatedUrl($default, $page->path(), true);
+                if ($prefixed) {
+                    $data->switcher_routes[$default] = $prefixed;
+                }
             }
         }
 
