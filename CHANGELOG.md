@@ -1,3 +1,9 @@
+# v3.4.0
+## 06/17/2026
+
+1. [](#new)
+    * Added a `langswitcher_translated_url(page, lang)` Twig function that returns the translated URL of any page (or route), not just the current one — useful when listing pages across languages. Resolves slug/route overrides and the content fallback chain the same way the current page's routes are built ([#84](https://github.com/getgrav/grav-plugin-langswitcher/issues/84))
+
 # v3.3.3
 ## 06/09/2026
 
