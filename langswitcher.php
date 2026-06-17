@@ -55,12 +55,31 @@ class LangSwitcherPlugin extends Plugin
         ]);
     }
 
-    /** Add the native_name function */
+    /** Add the native_name and langswitcher_translated_url functions */
     public function onTwigInitialized()
     {
-        $this->grav['twig']->twig()->addFunction(
+        $twig = $this->grav['twig']->twig();
+
+        $twig->addFunction(
             new TwigFunction('native_name', function($key) {
                 return LanguageCodes::getNativeName($key);
+            })
+        );
+
+        // Return the translated URL of an arbitrary page (or route) in the given language,
+        // resolving slug/route overrides and the content fallback chain the same way the
+        // current page's translated_routes are built.
+        $twig->addFunction(
+            new TwigFunction('langswitcher_translated_url', function($page, $lang) {
+                if (is_string($page)) {
+                    $page = $this->grav['pages']->find($page);
+                }
+
+                if (!$page instanceof PageInterface) {
+                    return null;
+                }
+
+                return $this->getTranslatedUrl($lang, $page->path());
             })
         );
     }
