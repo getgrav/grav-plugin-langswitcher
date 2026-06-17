@@ -58,6 +58,20 @@ This will generate something like:
 <link rel="alternate" href="http://example.com/zh-cn" hreflang="zh-cn" />
 ```
 
+## Translated URL for an arbitrary page
+
+The `langswitcher.*` Twig variables only describe the page currently being rendered. When you need the translated URL of *another* page — for example while listing pages in a collection across languages — use the `langswitcher_translated_url()` Twig function:
+
+```twig
+{# Pass a page object #}
+<a href="{{ langswitcher_translated_url(page, 'es') }}">Español</a>
+
+{# ...or a route string #}
+<a href="{{ langswitcher_translated_url('/blog/my-post', 'es') }}">Español</a>
+```
+
+It returns the public URL of the given page in the requested language, resolving slug and route overrides and the configured content fallback chain the same way the current page's links are built. It returns `null` if the page or route can't be found.
+
 # Updating
 
 As development for the LangSwitcher plugin continues, new versions may become available that add additional features and functionality, improve compatibility with newer Grav releases, and generally provide a better user experience. Updating LangSwitcher is easy, and can be done through Grav's GPM system, as well as manually.
