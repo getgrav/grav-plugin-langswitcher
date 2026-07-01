@@ -118,6 +118,87 @@ class LangSwitcherPlugin extends Plugin
 
     protected function resolveTranslatedRoute($lang, $path, $force_prefix = false)
     {
+        // Resolve the localized route string (no base/language-prefix yet).
+        // Grav 2.0.7+ resolves it in-core via Page::translatedRoute() — memoized
+        // and walking the already-loaded page tree — which is faster and the single
+        // source of truth. Older cores (including Grav 1.7) return false from the
+        // core probe and fall back to the filesystem walk below, so this plugin
+        // keeps working unchanged on those versions.
+        $route = $this->resolveRouteViaCore($lang, $path);
+        if ($route === false) {
+            $route = $this->resolveRouteViaFilesystem($lang, $path);
+        }
+        if ($route === null) {
+            return null;
+        }
+
+        $home_alias = $this->config->get('system.home.alias');
+        if ($route == trim($home_alias, '/')) {
+            $route = '';
+        }
+
+        if ($this->config->get('system.force_lowercase_urls')) {
+            $route = mb_strtolower($route);
+        }
+
+        $uri = $this->grav['uri'];
+        $language = $this->grav['language'];
+
+        $base = $uri->rootUrl($this->config->get('system.absolute_urls'));
+
+        $include_default = $this->config->get('system.languages.include_default_lang');
+        $default = $language->getDefault();
+
+        $lang_prefix = '';
+        if ($include_default || $lang !== $default || $force_prefix) {
+            $lang_prefix = '/' . $lang;
+        }
+
+        $url = $base . $lang_prefix . ($route ? '/' . $route : '');
+
+        $ext = '';
+        if ($this->config->get('system.pages.append_url_extension')) {
+            $ext = '.' . $this->config->get('system.pages.extension', 'html');
+        }
+        $url .= $ext;
+
+        return $url;
+    }
+
+    /**
+     * Resolve the localized route string using Grav core (2.0.7+).
+     *
+     * Returns false when core cannot resolve it (older Grav, incl. 1.7, or a
+     * non-regular page) so the caller falls back to the filesystem walk; null
+     * when the page does not exist; otherwise the route string without a leading
+     * slash (e.g. "categorie-localisee/article").
+     *
+     * @return string|null|false
+     */
+    protected function resolveRouteViaCore($lang, $path)
+    {
+        /** @var Pages $pages */
+        $pages = $this->grav['pages'];
+        $page = $pages->get($path);
+
+        if (!$page || !method_exists($page, 'translatedRoute')) {
+            return false;
+        }
+
+        $route = $page->translatedRoute($lang);
+
+        return $route !== null ? ltrim($route, '/') : null;
+    }
+
+    /**
+     * Resolve the localized route string by walking the page folders on disk and
+     * reading each ancestor's frontmatter. Works on every Grav version (including
+     * 1.7) and is the fallback when core resolution is unavailable.
+     *
+     * @return string|null route string without a leading slash, or null
+     */
+    protected function resolveRouteViaFilesystem($lang, $path)
+    {
         $pages_dir = $this->grav['locator']->findResource('page://');
 
         if (strpos($path, $pages_dir) === 0) {
@@ -129,6 +210,7 @@ class LangSwitcherPlugin extends Plugin
         $parts = explode('/', ltrim($rel_path, '/'));
         $current_path = $pages_dir;
         $slugs = [];
+        $header = [];
 
         foreach ($parts as $part) {
             if (empty($part)) continue;
@@ -205,37 +287,7 @@ class LangSwitcherPlugin extends Plugin
             $route = ltrim($header['routes']['default'], '/');
         }
 
-        $home_alias = $this->config->get('system.home.alias');
-        if ($route == trim($home_alias, '/')) {
-            $route = '';
-        }
-
-        if ($this->config->get('system.force_lowercase_urls')) {
-            $route = mb_strtolower($route);
-        }
-
-        $uri = $this->grav['uri'];
-        $language = $this->grav['language'];
-
-        $base = $uri->rootUrl($this->config->get('system.absolute_urls'));
-
-        $include_default = $this->config->get('system.languages.include_default_lang');
-        $default = $language->getDefault();
-
-        $lang_prefix = '';
-        if ($include_default || $lang !== $default || $force_prefix) {
-            $lang_prefix = '/' . $lang;
-        }
-
-        $url = $base . $lang_prefix . ($route ? '/' . $route : '');
-
-        $ext = '';
-        if ($this->config->get('system.pages.append_url_extension')) {
-            $ext = '.' . $this->config->get('system.pages.extension', 'html');
-        }
-        $url .= $ext;
-
-        return $url;
+        return $route;
     }
 
     /**
