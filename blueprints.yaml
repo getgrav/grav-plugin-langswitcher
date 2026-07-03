@@ -7,7 +7,7 @@ author:
   email: devs@getgrav.org
   url: http://getgrav.org
 homepage: https://github.com/getgrav/grav-plugin-langswitcher
-keywords: mulitlang, multilanguage, translation, switcher
+keywords: multilang, multilanguage, translation, switcher
 bugs: https://github.com/getgrav/grav-plugin-langswitcher/issues
 license: MIT
 compatibility:
