@@ -1,8 +1,10 @@
 # v3.4.1
-## 07/01/2026
+## 07/04/2026
 
 1. [](#improved)
     * On Grav 2.0.7 and newer the translated route is now resolved by Grav core instead of a separate filesystem walk, so cross-language links stay consistent with the rest of the site and are faster to build, while older Grav versions keep using the existing behavior.
+2. [](#bugfix)
+    * Fixed a typo in the plugin's search keywords ([#86](https://github.com/getgrav/grav-plugin-langswitcher/pull/86))
 
 # v3.4.0
 ## 06/17/2026
