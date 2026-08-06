@@ -7,8 +7,9 @@
         {% if language == langswitcher.current %}
             {% set active_class = 'active' %}
         {% endif %}
-        {% if langswitcher.translated_routes[language] %}
-            {% set lang_url = langswitcher.translated_routes[language] ~ page.urlExtension %}
+        {% set switcher_route = langswitcher.switcher_routes[language] ?? langswitcher.translated_routes[language] %}
+        {% if switcher_route %}
+            {% set lang_url = switcher_route ~ page.urlExtension %}
         {% else %}
             {% set base_lang_url = base_url_simple ~ grav.language.getLanguageURLPrefix(language) %}
             {% set lang_url = base_lang_url ~ langswitcher.page_route ~ page.urlExtension %}

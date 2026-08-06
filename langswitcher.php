@@ -55,12 +55,31 @@ class LangSwitcherPlugin extends Plugin
         ]);
     }
 
-    /** Add the native_name function */
+    /** Add the native_name and langswitcher_translated_url functions */
     public function onTwigInitialized()
     {
-        $this->grav['twig']->twig()->addFunction(
+        $twig = $this->grav['twig']->twig();
+
+        $twig->addFunction(
             new TwigFunction('native_name', function($key) {
                 return LanguageCodes::getNativeName($key);
+            })
+        );
+
+        // Return the translated URL of an arbitrary page (or route) in the given language,
+        // resolving slug/route overrides and the content fallback chain the same way the
+        // current page's translated_routes are built.
+        $twig->addFunction(
+            new TwigFunction('langswitcher_translated_url', function($page, $lang) {
+                if (is_string($page)) {
+                    $page = $this->grav['pages']->find($page);
+                }
+
+                if (!$page instanceof PageInterface) {
+                    return null;
+                }
+
+                return $this->getTranslatedUrl($lang, $page->path());
             })
         );
     }
@@ -76,13 +95,13 @@ class LangSwitcherPlugin extends Plugin
     /**
      * Generate localized route based on the translated slugs found through the pages hierarchy
      */
-    protected function getTranslatedUrl($lang, $path)
+    protected function getTranslatedUrl($lang, $path, $force_prefix = false)
     {
         if (empty($path)) {
             return null;
         }
 
-        $cache_key = 'langswitcher_url_' . $lang . '_' . md5($path);
+        $cache_key = 'langswitcher_url_' . $lang . '_' . ($force_prefix ? 'p_' : '') . md5($path);
         $cache = $this->grav['cache'];
         $cached = $cache->fetch($cache_key);
 
@@ -90,71 +109,29 @@ class LangSwitcherPlugin extends Plugin
             return $cached;
         }
 
-        $url = $this->resolveTranslatedRoute($lang, $path);
+        $url = $this->resolveTranslatedRoute($lang, $path, $force_prefix);
 
         $cache->save($cache_key, $url);
 
         return $url;
     }
 
-    protected function resolveTranslatedRoute($lang, $path)
+    protected function resolveTranslatedRoute($lang, $path, $force_prefix = false)
     {
-        $pages_dir = $this->grav['locator']->findResource('page://');
-
-        if (strpos($path, $pages_dir) === 0) {
-            $rel_path = substr($path, strlen($pages_dir));
-        } else {
+        // Resolve the localized route string (no base/language-prefix yet).
+        // Grav 2.0.7+ resolves it in-core via Page::translatedRoute() — memoized
+        // and walking the already-loaded page tree — which is faster and the single
+        // source of truth. Older cores (including Grav 1.7) return false from the
+        // core probe and fall back to the filesystem walk below, so this plugin
+        // keeps working unchanged on those versions.
+        $route = $this->resolveRouteViaCore($lang, $path);
+        if ($route === false) {
+            $route = $this->resolveRouteViaFilesystem($lang, $path);
+        }
+        if ($route === null) {
             return null;
         }
 
-        $parts = explode('/', ltrim($rel_path, '/'));
-        $current_path = $pages_dir;
-        $slugs = [];
-
-        foreach ($parts as $part) {
-            if (empty($part)) continue;
-            $current_path .= '/' . $part;
-
-            $match = null;
-            $files = glob($current_path . '/*.md');
-
-            if ($files) {
-                foreach ($files as $file) {
-                    $name = basename($file);
-                    if (Utils::endsWith($name, ".$lang.md")) {
-                        $match = $file;
-                        break;
-                    }
-                }
-
-                if (!$match) {
-                    foreach ($files as $file) {
-                        $name = basename($file);
-                        if (!preg_match('/\\.[a-z]{2}\\.md$/', $name)) {
-                            $match = $file;
-                            break;
-                        }
-                        $default = $this->grav['language']->getDefault();
-                        if (Utils::endsWith($name, ".$default.md")) {
-                            $match = $file;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if ($match) {
-                $file = CompiledMarkdownFile::instance($match);
-                $header = $file->header();
-                $folder_slug = preg_replace('/^[0-9]+\./u', '', $part);
-                $slug = $header['slug'] ?? $folder_slug;
-                $slugs[] = $slug;
-            } else {
-                return null;
-            }
-        }
-
-        $route = implode('/', $slugs);
         $home_alias = $this->config->get('system.home.alias');
         if ($route == trim($home_alias, '/')) {
             $route = '';
@@ -173,7 +150,7 @@ class LangSwitcherPlugin extends Plugin
         $default = $language->getDefault();
 
         $lang_prefix = '';
-        if ($include_default || $lang !== $default) {
+        if ($include_default || $lang !== $default || $force_prefix) {
             $lang_prefix = '/' . $lang;
         }
 
@@ -189,6 +166,131 @@ class LangSwitcherPlugin extends Plugin
     }
 
     /**
+     * Resolve the localized route string using Grav core (2.0.7+).
+     *
+     * Returns false when core cannot resolve it (older Grav, incl. 1.7, or a
+     * non-regular page) so the caller falls back to the filesystem walk; null
+     * when the page does not exist; otherwise the route string without a leading
+     * slash (e.g. "categorie-localisee/article").
+     *
+     * @return string|null|false
+     */
+    protected function resolveRouteViaCore($lang, $path)
+    {
+        /** @var Pages $pages */
+        $pages = $this->grav['pages'];
+        $page = $pages->get($path);
+
+        if (!$page || !method_exists($page, 'translatedRoute')) {
+            return false;
+        }
+
+        $route = $page->translatedRoute($lang);
+
+        return $route !== null ? ltrim($route, '/') : null;
+    }
+
+    /**
+     * Resolve the localized route string by walking the page folders on disk and
+     * reading each ancestor's frontmatter. Works on every Grav version (including
+     * 1.7) and is the fallback when core resolution is unavailable.
+     *
+     * @return string|null route string without a leading slash, or null
+     */
+    protected function resolveRouteViaFilesystem($lang, $path)
+    {
+        $pages_dir = $this->grav['locator']->findResource('page://');
+
+        if (strpos($path, $pages_dir) === 0) {
+            $rel_path = substr($path, strlen($pages_dir));
+        } else {
+            return null;
+        }
+
+        $parts = explode('/', ltrim($rel_path, '/'));
+        $current_path = $pages_dir;
+        $slugs = [];
+        $header = [];
+
+        foreach ($parts as $part) {
+            if (empty($part)) continue;
+            $current_path .= '/' . $part;
+
+            $match = null;
+            $files = glob($current_path . '/*.md');
+
+            if ($files) {
+                foreach ($files as $file) {
+                    $name = basename($file);
+                    if (Utils::endsWith($name, ".$lang.md")) {
+                        $match = $file;
+                        break;
+                    }
+                }
+
+                if (!$match) {
+                    // Build fallback chain from content_fallback config
+                    $fallback_langs = [];
+                    $content_fallback = $this->config->get('system.languages.content_fallback.' . $lang);
+                    if ($content_fallback) {
+                        $fallback_langs = is_array($content_fallback) ? $content_fallback : array_map('trim', explode(',', $content_fallback));
+                    }
+                    $default = $this->grav['language']->getDefault();
+                    if (!in_array($default, $fallback_langs)) {
+                        $fallback_langs[] = $default;
+                    }
+
+                    // Try each fallback language in order
+                    foreach ($fallback_langs as $fallback_lang) {
+                        foreach ($files as $file) {
+                            $name = basename($file);
+                            if (Utils::endsWith($name, ".$fallback_lang.md")) {
+                                $match = $file;
+                                break 2;
+                            }
+                        }
+                    }
+
+                    // Last resort: language-neutral file
+                    if (!$match) {
+                        foreach ($files as $file) {
+                            $name = basename($file);
+                            if (!preg_match('/\\.[a-z]{2}(-[a-z]{2})?\\.md$/', $name)) {
+                                $match = $file;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ($match) {
+                $file = CompiledMarkdownFile::instance($match);
+                $header = $file->header();
+                $folder_slug = preg_replace('/^[0-9]+\./u', '', $part);
+                $slug = $header['slug'] ?? $folder_slug;
+                $home_alias = trim($this->config->get('system.home.alias'), '/');
+                $hide_home = $this->config->get('system.home.hide_in_urls'); // Check Grav's settings to hide or show the home page path.
+                if ($hide_home && $slug === $home_alias) {
+                    continue;
+                }
+                $slugs[] = $slug;
+            } else {
+                return null;
+            }
+        }
+
+        $route = implode('/', $slugs);
+
+        // If the translated page has a route override, use it instead of the slug-based path
+        if (isset($header['routes']['default'])) {
+            $route = ltrim($header['routes']['default'], '/');
+        }
+
+        return $route;
+    }
+
+    /**
      * Set needed variables to display Langswitcher.
      */
     public function onTwigSiteVariables()
@@ -201,7 +303,7 @@ class LangSwitcherPlugin extends Plugin
         $pages = $this->grav['pages'];
 
         $data = new \stdClass;
-        $data->page_route = $page->rawRoute();
+        $data->page_route = $page->route();
         if ($page->home()) {
             $data->page_route = '/';
         }
@@ -239,7 +341,24 @@ class LangSwitcherPlugin extends Plugin
                 }
 
                 $translated = $this->getTranslatedUrl($lang, $page->path());
-                $data->translated_routes[$lang] = $translated ?? $data->page_route;
+                $data->translated_routes[$lang] = $translated ?: $data->page_route;
+            }
+
+            // Build a switcher-specific copy of the routes. When the default language has no URL
+            // prefix (include_default_lang=false) but the active language is stored in the session,
+            // the prefix-less default URL can't reset the session back to the default. Force the
+            // explicit /<lang> prefix on the default-language switch link so Grav picks it up and
+            // resets the session (it then redirects to the canonical prefix-less URL). Kept separate
+            // from translated_routes so hreflang/canonical output stays prefix-less.
+            $data->switcher_routes = $data->translated_routes;
+            $default = $language->getDefault();
+            $include_default = $this->config->get('system.languages.include_default_lang');
+            $session_store_active = $this->config->get('system.languages.session_store_active', true);
+            if (!$include_default && $session_store_active && $active !== $default) {
+                $prefixed = $this->getTranslatedUrl($default, $page->path(), true);
+                if ($prefixed) {
+                    $data->switcher_routes[$default] = $prefixed;
+                }
             }
         }
 

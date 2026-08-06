@@ -1,3 +1,44 @@
+# v3.4.1
+## 07/04/2026
+
+1. [](#improved)
+    * On Grav 2.0.7 and newer the translated route is now resolved by Grav core instead of a separate filesystem walk, so cross-language links stay consistent with the rest of the site and are faster to build, while older Grav versions keep using the existing behavior.
+2. [](#bugfix)
+    * Fixed a typo in the plugin's search keywords ([#86](https://github.com/getgrav/grav-plugin-langswitcher/pull/86))
+
+# v3.4.0
+## 06/17/2026
+
+1. [](#new)
+    * Added a `langswitcher_translated_url(page, lang)` Twig function that returns the translated URL of any page (or route), not just the current one — useful when listing pages across languages. Resolves slug/route overrides and the content fallback chain the same way the current page's routes are built ([#84](https://github.com/getgrav/grav-plugin-langswitcher/issues/84))
+
+# v3.3.3
+## 06/09/2026
+
+1. [](#bugfix)
+    * Fixed switching back to the default language when `include_default_lang` is off and the active language is kept in the session, by exposing a new `switcher_routes` with an explicit prefix on the default language ([#83](https://github.com/getgrav/grav-plugin-langswitcher/issues/83))
+
+# v3.3.2
+## 06/04/2026
+
+1. [](#bugfix)
+    * Fixed the language switcher not reverting to the default language on the home page when the site is hosted at the domain root — the translated route resolved to an empty string and was kept instead of falling back to the page route. Thanks @thekenshow [#82](https://github.com/getgrav/grav-plugin-langswitcher/pull/82)
+
+# v3.3.1
+## 05/01/2026
+
+1. [](#improved)
+    * Added 1.7|2.0 compatibility flags
+
+# v3.3.0
+## 03/25/2026
+
+1. [](#improved)
+    * Implement home page url visibility based on settings [#81](https://github.com/getgrav/grav-plugin-langswitcher/pull/81)
+1. [](#bugfix)
+    * Fixed fallback regex to support regional language codes (e.g., `en-us`, `fr-ca`, `de-de`) in addition to simple two-letter codes
+    * Fixed translated URL fallback to respect `system.languages.content_fallback` chain rather than always falling back to the default language
+
 # v3.2.0
 ## 10/21/2024
 
@@ -40,7 +81,7 @@
    * Added an `x-default` entry for `hreflang` template when default language has `include_default_lang` set to false
    * Support `params` and `query` string parameters in URLs
    * Full domain URLs for `hreflang` entries
-     
+
 # v2.0.1
 ## 08/04/2022
 
@@ -54,7 +95,7 @@
     * Support for translated slugs!!!! [#50](https://github.com/getgrav/grav-plugin-langswitcher/pull/50)
     * Require Grav `1.7`
 1. [](#improved)
-    * Improved support for home URL [#59](https://github.com/getgrav/grav-plugin-langswitcher/pull/59)   
+    * Improved support for home URL [#59](https://github.com/getgrav/grav-plugin-langswitcher/pull/59)
 
 # v1.5.0
 ## 07/01/2021
