@@ -1,3 +1,9 @@
+# v3.4.2
+## 08/07/2026
+
+1. [](#new)
+    * Added Spanish translation, contributed by [@pmoreno-rodriguez](https://github.com/pmoreno-rodriguez) ([#87](https://github.com/getgrav/grav-plugin-langswitcher/pull/87))
+
 # v3.4.1
 ## 07/04/2026
 
