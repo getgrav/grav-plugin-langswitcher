@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block language_item %}
-    {% if show_language %}
+    {% if show_language and not (active_class and grav.config.plugins.langswitcher.hide_active) %}
     <li><a href="{{ lang_url ~ uri.params ~ (uri.query|length > 1 ? '?' ~ uri.query) }}" class="external {{ active_class }}">{% include 'partials/langswitcher-' ~ display_format ~ '.html.twig' %}</a></li>
     {% endif %}
 {% endblock %}
