@@ -1,3 +1,9 @@
+# v3.4.3
+## 09/23/2026
+
+1. [](#improved)
+    * Clearer Spanish wording for the Language Display setting, contributed by [@pmoreno-rodriguez](https://github.com/pmoreno-rodriguez) ([#88](https://github.com/getgrav/grav-plugin-langswitcher/pull/88))
+
 # v3.4.2
 ## 08/07/2026
 

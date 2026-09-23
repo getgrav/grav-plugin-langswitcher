@@ -23,7 +23,7 @@ es:
     UNTRANSLATED_PAGES_BEHAVIOR_OPTION_NONE: 'Mostrar idioma (predeterminado)'
     UNTRANSLATED_PAGES_BEHAVIOR_OPTION_REDIRECT: 'Mostrar idioma, enlace a ruta de inicio'
     UNTRANSLATED_PAGES_BEHAVIOR_OPTION_HIDE: 'Ocultar idioma'
-    LANGUAGE_DISPLAY: 'Mostrar Idioma'
+    LANGUAGE_DISPLAY: 'Visualización del idioma'
     LANGUAGE_DISPLAY_HELP: 'El formato de visualización del idioma, ya sea "largo" (ej: inglés) o "corto" (ej: EN)'
     LANGUAGE_DISPLAY_LONG: 'Largo'
     LANGUAGE_DISPLAY_SHORT: 'Corto'
